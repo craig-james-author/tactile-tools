@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tactile Configurator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  </head>
+  <body onload="initializeOnLoad();">
+
+    <div class="container text-left" style="margin-top: 3em;">
+
+      <div class="row" style="margin-bottom: 2em;">
+	<div class="col">
+	  <h1>Tactile Project Configurator</h1>
+	</div>
+      </div>
+
+      <div class="row border-bottom border-top">
+
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-1-enabled" checked>
+	    <label class="form-check-label" for="channel-1-enabled">Channel 1</label>
+	  </div>
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-2-enabled" checked>
+	    <label class="form-check-label" for="channel-2-enabled">Channel 2</label>
+	  </div>
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-3-enabled" checked>
+	    <label class="form-check-label" for="channel-3-enabled">Channel 3</label>
+	  </div>
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-4-enabled" checked>
+	    <label class="form-check-label" for="channel-4-enabled">Channel 4</label>
+	  </div>
+	</div>
+
+	<div class="col-8 border-end">
+	  If you are not using a channel, disable it here. Sensor inputs with nothing
+	  connected can pick up electrical noise from the environment and trigger
+	  the channel, confusing other operations.
+	</div>
+
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em; padding-top: 1em;">
+	  <select class="form-select" id="touch-or-proximity-menu" onChange="touchModeChanged()">
+	    <option value="touch">Touch mode</option>
+	    <option value="proximity">Proximity mode</option>
+	  </select>
+	</div>
+	<div class="col-8">
+	  This specifies how the sensors will control the output:
+	  <ul style="margin-bottom: 0px;">
+	    <li><b>Touch mode:</b> Audio plays when the
+	      sensor is touched, and stop when released.
+	    </li>
+	    <li><b>Proximity mode:</b> Track when your hand
+	      gets near the sensor, volume increases as hand gets closer.
+	    </li>
+	  </ul>
+	  <i>Note: fade-in, fade-out, volume, and touch-to-stop don't apply when using Proximity mode and will
+	    be hidden when "Proximity mode" is selected.</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="touch-threshold">
+		Start-track threshold (0-100):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="touch-threshold" value="85">
+	  </div>
+
+	  <div class="input-group">
+	    <div class="input-group-prepend"  style="width: 80%;">
+	      <label class="input-group-text" for="release-threshold">
+		Stop-track threshold (0-100):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="release-threshold" value="65">
+	  </div>
+	</div>
+	<div class="col-8">
+	  How strong the touch signal needs to be to start and stop your audio track. Range is 0 to 100. 
+	  <ul style="margin-bottom: 0em">
+	    <li><b>Touch mode:</b> values 85 and 65 typically work well.</li>
+	    <li><b>Proximity mode:</b> values of 10 and 5 typically work well.</li>
+	  </ul>
+	  Lower values mean more sensitivity, higher values mean less
+	  sensitivity. Release threshold MUST be lower than the touch threshold.
+	</div>
+      </div>
+    
+      <div class="row border-bottom" id="volume-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="volume" style="text-align: right;">
+		Volume:		
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="volume" value="100">
+	  </div>
+	</div>
+	<div class="col-8">
+	  Volume control, range is 0 to 100. You'll typically leave this at 100, but there may
+	  be applications for which lower values are appropriate. <i>(Note: this is hidden when
+	  "Proximity mode" is selected above.)</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="fade-in-out-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="fade-in" style="text-align: right;">
+		Fade-in (msec):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="fade-in" value="0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend"  style="width: 80%;">
+	      <label class="input-group-text" for="fade-out">
+		Fade out (msec):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="fade-out" value="0">
+	  </div>
+	</div>
+	<div class="col-8">
+	  By default a track starts playing at full volume, and stops
+	  immediately when the sensor is released. If you specify a fade-in
+	  and/or fade-out time, then the track's volume fades in and/or out for
+	  the specified time (in milliseconds, e.g.  1500 is 1.5
+	  seconds). <i>(Note: this is hidden when "Proximity mode" is selected
+	  above.)</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="touch-to-stop-row">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="touch-to-stop" unchecked>
+	    <label class="form-check-label" for="touch-to-stop">Enable touch-to-stop</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Touch-start / touch-stop mode. Normally your audio plays while you're
+	  touching the sensor and stops when you release. With this enabled, a
+	  touch starts the audio, which keeps playing until you touch again.
+	  <i>(Note: this is hidden when "Proximity mode" is selected above.)</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="multi-track" unchecked>
+	    <label class="form-check-label" for="multi-track">Enable multi-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Enables multiple simultaneous tracks; that is, if you touch two or
+	  more sensors, the associated audio files will play simultaneously. If
+	  disabled, only one track plays at a time.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="continue-track" unchecked>
+	    <label class="form-check-label" for="continue-track">Enable continue-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  If this is enabled, then when a track is playing and the sensor is
+	  released and touched again, the audio track resume where it left
+	  off. If disabled, the audio track starts from the beginning each time
+	  the sensor is touched.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="inactivity-timeout">
+		Inactivity timeout (seconds):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="inactivity-timeout" value="60">
+	  </div>
+	</div>
+	<div class="col-8">
+	  If you enable continue-track mode (above), then the inactivity timeout
+	  specifies an idle time; if that time passes with no activity (no
+	  sensors touched), then all tracks are reset and will start playing
+	  from the beginning the next time a sensor is touched (rather than
+	  resuming where it left off). Time is in seconds. A value of zero means
+	  no timeout.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="random-track" unchecked>
+	    <label class="form-check-label" for="random-track">Enable random-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Normally a single track corresponds to each sensor, and is played when
+	  the sensor is touched. If random-track mode is enabled ("true"), then
+	  a touched sensor will cause a track to be randomly selected from a
+	  corresponding folder on the micro-SD card (which must be named E1, E2,
+	  E3, and E4).  Each folder can contain from one to 100 tracks. The
+	  selection is random, except that the most-recently-played track is
+	  avoided (i.e. the same track won't play twice in a row, unless there's
+	  only one track in the folder).
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="track-looping" unchecked>
+	    <label class="form-check-label" for="track-looping">Enable track looping</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  What happens when an audio track reaches the end. Normally, the track is stopped, but if this is
+	  enabled, the track loops back to the beginning and continues playing.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4" style = "padding-left: 3em; padding-top: 1em; padding-bottom: 0.5em; text-align: right;">
+	  <a href="#advanced" class="text-primary text-decoration-underline" onClick="toggleAdvancedOptions();" id="toggle-advanced">xx</a>
+	</div>
+	<div class="col-8">
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="log-level-row">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <a name="advanced"></a>
+	  <div class="input-group">
+	    <select class="form-select" id="log-level">
+	      <option value="0">No logging</option>
+	      <option value="1">Activity logging</option>
+	      <option value="2">Extensive logging</option>
+	    </select>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Amount of detail in the Arduino app's "serial monitor" window. This is mostly for developers, or
+	  when trying to diagnose problems.
+	  <ul>
+	    <li>No logging: nothing is printed to the serial monitor</li>
+	    <li>Activity logging: Ordinary events (touch/release, audio start/stop, etc.) is logged</li>
+	    <li>Extensive logging: Produces a lot of information. Should only be used by C++ developers.</li>
+	  </ul>
+	</div>
+
+      </div>
+
+      <div class="row border-bottom" id="proximity-multiplier-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-1" style="text-align: right;">
+		Channel 1 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-1" value="1.0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-2" style="text-align: right;">
+		Channel 2 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-2" value="1.0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-3" style="text-align: right;">
+		Channel 3 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-3" value="1.0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-4" style="text-align: right;">
+		Channel 4 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-4" value="1.0">
+	  </div>
+	</div>
+	  
+	<div class="col-8">
+	  <p><i>NOTE: THIS FEATURE IS EXPERIMENTAL, and may change or be removed
+	  in future versions.</i></p>
+	  <p>
+	  The proximity-multiplier feature can be used to make the sensor
+	  more or less sensitive. Each sensor is specified separately.
+	  A value greater than 1 increases sensitivity, and less than one
+	  decreases it. For example 2.0 will double sensitivity; 0.5 will
+	  cut sensitivity in half. NOTE: reducing sensitivity also reduces
+	  the total volume you'll ever get, e.g. a multiplier of 0.5 means
+	  you'll never get more than 50% volume.
+	  </p>
+	  <p>
+	  Note that the multiplier also affects touch mode and the
+	  touch/release threshold.
+	  </p>
+	</div>
+
+      </div>
+      
+      <div class="row border-bottom" id="averaging-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="averaging" style="text-align: right;">
+		Averaging:
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="averaging" value="200">
+	  </div>
+	</div>
+
+	<div class="col-8">
+	  You probably don't need to modify this. This is the number of sensor
+	  readings that are averaged together to get the sensor's value. Higher
+	  numbers mean more smoothing, but also mean a slower response
+	  time. Lower numbers mean less smoothing (noiser signal) and faster
+	  response. Only change this if you have a noisy situation, usually
+	  indicated if your audio tracks "stutter" (start and stop rapidly).
+	</div>
+
+      </div>
+      
+      <div class="row border-bottom">
+	<div class="col-12 border-end d-flex align-items-center" style="padding-top:1em">
+	  <div class="container">
+	    <div class="row">
+	      <div class="col-2">
+	      </div>
+	      <div class="col-2 text-right" style="display: flex; align-items: center;">
+		<button onClick="createArduinoSketch();" type="button" class="btn btn-primary">Create Sketch</button>
+	      </div>
+	      <div class="col-8">
+		<b>Directions:</b>
+		<ul style="margin-bottom: 0px;">
+		  <li>Click the "Create Sketch" button.</li>
+		  <li>Click in the text area below with the sketch and type Command-A
+		    (Macintosh) or Cntl-A (Windows) to select all text.</li>
+		  <li>Select Command-C (Mac) or Cntl-C (Windows) to copy the text.</li>
+		  <li>Paste the text into the sketch window of your Arduino app.</li>
+		</ul>
+		<i>You can edit the sketch directly in the Arduino app, but be careful not to
+		  change the syntax (especially "punctuation").</i>
+	      </div>
+	    </div>
+	    <div class="row" style="height: 20em;">
+	      <textarea id="sketch" class="text-area"
+			autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+			style="margin-top: 1em; width:60; height:30;
+			       font-family: Courier; font-size: 0.8em;"
+		>Click "Create Sketch" when your configuration is ready.
+	      </textarea>
+	    </div>
+	  </div>
+	</div>
+
+      </div>
+
+      <div class="row" style="padding-top: 1em;">
+	<style>
+	  .notice {font-size: 0.7em; font-color: #999999; font-style: italic; margin-bottom: 0.5em; padding-left:3em; padding-right: 3em;}
+	</style>
+	<p class="notice">Copyright &copy;2025, Craig James</p>
+	<p class="notice">This file is part of of the "Tactile" library.
+	  Tactile is free software: you can redistribute it and/or modify it under
+	the terms of the GNU Lesser General Public License (LGPL) as published by
+	the Free Software Foundation, either version 3 of the License, or (at
+	your option) any later version.
+	Tactile is distributed in the hope that it will be useful, but WITHOUT
+	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+	FITNESS FOR A PARTICULAR PURPOSE. See the LGPL for more details.
+	You should have received a copy of the LGPL along with Tactile. If not,
+	see <a href="https://www.gnu.org/licenses/" target="lic">https://www.gnu.org/licenses/</a>.</p>
+	
+      </div>		      
+
+    </div>
+    
+  </body>
+</html>
+
+<script src="./builder.js"></script>
