@@ -153,6 +153,7 @@ function readSoundFile() {
     }
     var soundLength  = configuration.soundLength;
     var msecPerPoint = configuration.msecPerPoint;
+    var frequency    = configuration.frequency;
     var volumes      = configuration.volumes;
     if (!soundLength || !msecPerPoint || !volumes) {
 	alert("Warning: can't parse sound file");
@@ -160,10 +161,11 @@ function readSoundFile() {
     }
     var numPoints = volumes.length;
     document.getElementById("number-of-sliders").value = volumes.length;
-    document.getElementById("sound-length").value = soundLength;
-
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
 	document.getElementById(name).value = volumes[i-1];
     }
+    document.getElementById("sound-length").value = soundLength;
+    document.getElementById("vibration-frequency").value = frequency;
+    updateVibrationFrequency();
 }
