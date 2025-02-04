@@ -39,6 +39,9 @@ function getCookie(name) {
 }
 
 function initializeOnLoad() {
+
+    updateVibrationFrequency();
+
     var numSliders = getCookie("numberSliders");
     if (!numSliders) {
 	changeNumberOfSliders();
@@ -58,24 +61,26 @@ function initializeOnLoad() {
 	var name = "slider" + (i+1);
 	document.getElementById(name).value = volumesArray[i];
     }
+    alert("initializeOnLoad");
 }
 
 function simulate() {
-    var numPoints   = parseInt(document.getElementById("number-of-sliders").value);
-    var soundLength = parseFloat(document.getElementById("sound-length").value);
+    var numPoints    = parseInt(document.getElementById("number-of-sliders").value);
+    var soundLength  = parseFloat(document.getElementById("sound-length").value);
     var msecPerPoint = soundLength * 1000 / numPoints;
+    var frequency    = document.getElementById("vibration-frequency").value;
     var volumeValues = [];
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
 	volumeValues.push(document.getElementById(name).value);
     }
-    playVibration(msecPerPoint, volumeValues);
+    playVibration(frequency, msecPerPoint, volumeValues);
 }
 
-async function playVibration(msecPerPoint, volumeValues) {
+async function playVibration(frequency, msecPerPoint, volumeValues) {
     var context = new AudioContext();
     var o = context.createOscillator();
-    o.frequency.value = 200;
+    o.frequency.value = frequency;
     o.type = "sine";
     g = context.createGain();
     o.connect(g);
@@ -99,10 +104,18 @@ async function playVibration(msecPerPoint, volumeValues) {
     o.stop();
 }
 
+function updateVibrationFrequency() {
+    var freq = document.getElementById("vibration-frequency").value;
+    var label = document.getElementById("vibration-frequency-label");
+    label.innerHTML = "Frequency: " + freq + " Hz";
+}
+
+
 function createConfiguration() {
 
     var numPoints   = parseInt(document.getElementById("number-of-sliders").value);
     var soundLength = parseFloat(document.getElementById("sound-length").value);
+    var frequency   = parseInt(document.getElementById("vibration-frequency").value);
     var msecPerPoint = soundLength * 1000 / numPoints;
 
     var volumeValues = [];
@@ -114,17 +127,19 @@ function createConfiguration() {
     var configuration = {};
     configuration.msecPerPoint = msecPerPoint;
     configuration.soundLength = soundLength;
+    configuration.frequency = frequency;
     configuration.volumes = volumeValues;
     return configuration;
 }
 
 function writeSoundFile() {
     var configuration = createConfiguration();
-    document.getElementById("sound-file").value = JSON.stringify(configuration, null, "  ");
+    var json = JSON.stringify(configuration, null, "  ");
+    document.getElementById("vibration-file").value = json;
 }
 
 function readSoundFile() {
-    var file = document.getElementById("sound-file").value;
+    var file = document.getElementById("vibration-file").value;
     var configuration;
     try {
 	configuration = JSON.parse(file);

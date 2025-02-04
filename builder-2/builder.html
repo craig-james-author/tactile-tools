@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tactile Configurator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  </head>
+  <body onload="initializeOnLoad();">
+
+    <div class="container text-left" style="margin-top: 3em;">
+
+      <div class="row" style="margin-bottom: 2em;">
+	<div class="col">
+	  <h1>Tactile Project Configurator</h1>
+	</div>
+      </div>
+
+      <div class="row border-bottom border-top bg-light">
+	<h3>Sensor Options</h3>
+      </div>
+
+      <div class="row border-top">
+
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-1-enabled" checked>
+	    <label class="form-check-label" for="channel-1-enabled">Channel 1</label>
+	  </div>
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-2-enabled" checked>
+	    <label class="form-check-label" for="channel-2-enabled">Channel 2</label>
+	  </div>
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-3-enabled" checked>
+	    <label class="form-check-label" for="channel-3-enabled">Channel 3</label>
+	  </div>
+	  <div class="form-check form-switch">
+	    <input class="form-check-input" type="checkbox" id="channel-4-enabled" checked>
+	    <label class="form-check-label" for="channel-4-enabled">Channel 4</label>
+	  </div>
+	</div>
+
+	<div class="col-8 border-end">
+	  If you are not using a channel, disable it here. Sensor inputs with nothing
+	  connected can pick up electrical noise from the environment and trigger
+	  the channel, confusing other operations.
+	</div>
+
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em; padding-top: 1em;">
+	  <select class="form-select" id="touch-or-proximity-menu" onChange="touchModeChanged()">
+	    <option value="touch">Touch mode</option>
+	    <option value="proximity">Proximity mode</option>
+	  </select>
+	</div>
+	<div class="col-8">
+	  This specifies how the sensors will control the output:
+	  <ul style="margin-bottom: 0px;">
+	    <li><b>Touch mode:</b> Audio plays when the
+	      sensor is touched, and stop when released.
+	    </li>
+	    <li><b>Proximity mode:</b> Track when your hand
+	      gets near the sensor, volume increases as hand gets closer.
+	    </li>
+	  </ul>
+	  <i>Note: fade-in, fade-out, volume, and touch-to-stop don't apply when using Proximity mode and will
+	    be hidden when "Proximity mode" is selected.</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="touch-threshold">
+		Start-track threshold (0-100):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="touch-threshold" value="85">
+	  </div>
+
+	  <div class="input-group">
+	    <div class="input-group-prepend"  style="width: 80%;">
+	      <label class="input-group-text" for="release-threshold">
+		Stop-track threshold (0-100):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="release-threshold" value="65">
+	  </div>
+	</div>
+	<div class="col-8">
+	  How strong the touch signal needs to be to start and stop your audio track. Range is 0 to 100. 
+	  <ul style="margin-bottom: 0em">
+	    <li><b>Touch mode:</b> values 85 and 65 typically work well.</li>
+	    <li><b>Proximity mode:</b> values of 10 and 5 typically work well.</li>
+	  </ul>
+	  Lower values mean more sensitivity, higher values mean less
+	  sensitivity. Release threshold MUST be lower than the touch threshold.
+	</div>
+      </div>
+    
+      <div class="row border-bottom border-top bg-light">
+	<h3>Audio Options</h3>
+      </div>
+
+      <div class="row border-bottom" id="volume-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="volume" style="text-align: right;">
+		Volume:		
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="volume" value="100">
+	  </div>
+	</div>
+	<div class="col-8">
+	  Volume control, range is 0 to 100. You'll typically leave this at 100, but there may
+	  be applications for which lower values are appropriate. <i>(Note: this is hidden when
+	  "Proximity mode" is selected above.)</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="fade-in-out-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="fade-in" style="text-align: right;">
+		Fade-in (msec):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="fade-in" value="0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend"  style="width: 80%;">
+	      <label class="input-group-text" for="fade-out">
+		Fade out (msec):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="fade-out" value="0">
+	  </div>
+	</div>
+	<div class="col-8">
+	  By default a track starts playing at full volume, and stops
+	  immediately when the sensor is released. If you specify a fade-in
+	  and/or fade-out time, then the track's volume fades in and/or out for
+	  the specified time (in milliseconds, e.g.  1500 is 1.5
+	  seconds). <i>(Note: this is hidden when "Proximity mode" is selected
+	  above.)</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="touch-to-stop-row">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="touch-to-stop" unchecked>
+	    <label class="form-check-label" for="touch-to-stop">Enable touch-to-stop</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Touch-start / touch-stop mode. Normally your audio plays while you're
+	  touching the sensor and stops when you release. With this enabled, a
+	  touch starts the audio, which keeps playing until you touch again.
+	  <i>(Note: this is hidden when "Proximity mode" is selected above.)</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="multi-track" unchecked>
+	    <label class="form-check-label" for="multi-track">Enable multi-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Enables multiple simultaneous tracks; that is, if you touch two or
+	  more sensors, the associated audio files will play simultaneously. If
+	  disabled, only one track plays at a time.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="continue-track" unchecked>
+	    <label class="form-check-label" for="continue-track">Enable continue-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  If this is enabled, then when a track is playing and the sensor is
+	  released and touched again, the audio track resume where it left
+	  off. If disabled, the audio track starts from the beginning each time
+	  the sensor is touched.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="inactivity-timeout">
+		Inactivity timeout (seconds):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="inactivity-timeout" value="60">
+	  </div>
+	</div>
+	<div class="col-8">
+	  If you enable continue-track mode (above), then the inactivity timeout
+	  specifies an idle time; if that time passes with no activity (no
+	  sensors touched), then all tracks are reset and will start playing
+	  from the beginning the next time a sensor is touched (rather than
+	  resuming where it left off). Time is in seconds. A value of zero means
+	  no timeout.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="random-track" unchecked>
+	    <label class="form-check-label" for="random-track">Enable random-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Normally a single track corresponds to each sensor, and is played when
+	  the sensor is touched. If random-track mode is enabled ("true"), then
+	  a touched sensor will cause a track to be randomly selected from a
+	  corresponding folder on the micro-SD card (which must be named E1, E2,
+	  E3, and E4).  Each folder can contain from one to 100 tracks. The
+	  selection is random, except that the most-recently-played track is
+	  avoided (i.e. the same track won't play twice in a row, unless there's
+	  only one track in the folder).
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="track-looping" unchecked>
+	    <label class="form-check-label" for="track-looping">Enable track looping</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  What happens when an audio track reaches the end. Normally, the track is stopped, but if this is
+	  enabled, the track loops back to the beginning and continues playing.
+	</div>
+      </div>
+
+      <div class="row border-bottom bg-light">
+	<h3>Haptic (vibration) Options</h3>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-12">
+	  <ul class="nav nav-tabs" id="myTab" role="tablist">
+	    <li class="nav-item" role="presentation">
+	      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#channel1" type="button"
+	      role="tab" aria-controls="channel1" aria-selected="true">Channel 1</button>
+	    </li>
+	    <li class="nav-item" role="presentation">
+	      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#channel2" type="button"
+	      role="tab" aria-controls="profile" aria-selected="false">Channel 2</button>
+	    </li>
+	    <li class="nav-item" role="presentation">
+	      <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#channel3" type="button"
+	      role="tab" aria-controls="contact" aria-selected="false">Channel 3</button>
+	    </li>
+	    <li class="nav-item" role="presentation">
+	      <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#channel4" type="button"
+	      role="tab" aria-controls="contact" aria-selected="false">Channel 4</button>
+	    </li>
+	  </ul>
+	</div>
+      </div>
+      <div class="row border-bottom">
+	<div class="col-1"></div>
+	<div class="col-11">
+	  
+	  <div class="tab-content" id="myTabContent">
+	    <div class="tab-pane fade show active" id="channel1" role="tabpanel" aria-labelledby="home-tab">
+	      <b>Configuring Channel 1</b>
+	    </div>
+	    <div class="tab-pane fade" id="channel2" role="tabpanel" aria-labelledby="profile-tab">
+	      <b>Configuring Channel 2</b>
+	    </div>
+	    <div class="tab-pane fade" id="channel3" role="tabpanel" aria-labelledby="contact-tab">
+	      <b>Configuring Channel 3</b>
+	    </div>
+	    <div class="tab-pane fade" id="channel4" role="tabpanel" aria-labelledby="contact-tab">
+	      <b>Configuring Channel 4</b>
+	    </div>
+	  </div>
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-1"></div>
+	<div class="col-3 border-end" style="padding-left: 3em;">
+	  <div class="input-group">
+	    <select class="form-select" id="vibration-type" onChange="vibrationModeChanged()">
+	      <option value="">Selection option...</option>
+	      <option value="vibrate">Vibration</option>
+	      <option value="pulses">Pulses</option>
+	      <option value="custom">Custom</option>
+	    </select>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Select the type of vibration:
+	  <ul style="margin-bottom: 0px;">
+	    <li><b>Vibration:</b> Vibrate whenever sensor is touched.</li>
+	    <li><b>Pulses:</b> short pulses of vibration; select duration
+	      and spacing below (when this is selected)</li>
+	    <li><b>Custom:</b> design your own pattern</li>
+	  </ul>
+	  When you choose the vibration type, its options will appear below.
+	</div>
+      </div>
+      
+      <div class="row border-bottom" id="no-vib-options-row">
+	<div class="col-1"></div>
+	<div class="col-3 border-end">
+	  <p style="padding-top: 1em; padding-bottom: 1em; font-style: italic;">Select from menu above to see options.</p>
+	</div>
+	<div class="col-8">
+	  <p style="padding-top: 1em; padding-bottom: 1em; font-style: italic;">Vibration options...</p>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="vib-options-row">
+	<div class="col-1"></div>
+	<div class="col-3 border-end">
+	  <select class="form-select" id="vibration-waveform" onChange="selectVibWaveform()">
+	    <option value="">Select...</option>
+	    <option value="continuous">Continuous vibration</option>
+	    <option value="square-wave">Continuous on/off</option>
+	    <option value="sawtooth-wave">Continuous up/down volume</option>
+	    <option value="single-pulse">Single pulse</option>
+	    <option value="single-pulse-fade">Single pulse with fade-out</option>
+	  </select>
+	</div>
+	<div class="col-8">
+	  <div id="straight-line-container">
+	    <span id="straight-line-here"></span> Continuous vibration
+	  </div>
+	  <div id="square-wave-container">
+	    <span id="square-wave-here"></span> Continuous on/off vibration
+	  </div>
+	  <div id="sawtooth-wave-container">
+	    <span id="sawtooth-wave-here"></span> Continuous up/down intensity vibration
+	  </div>
+	  <div id="single-pulse-wave-container">
+	    <span id="single-pulse-wave-here"></span> A single pulse of vibration
+	  </div>
+	  <div id="single-pulse-fade-wave-container">
+	    <span id="single-pulse-fade-wave-here"></span> A single pulse of vibration with fade-out
+	  </div>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="pulse-options-row">
+	<div class="col-1"></div>
+	<div class="col-3 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="pulse-width">
+		Pulse width (msec):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="pulse-width" value="100">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="pulse-spacing">
+		Pulse spacing (msec):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="pulse-spacing" value="100">
+	  </div>
+	</div>
+	<div class="col-8">
+	  How to shape the pulses:
+	  <ul>
+	    <li><b>Pulse width:</b> How long the vibration is on (milliseconds). E.g. 5 msec is
+	    very short, 500 msec is a 1/2-second-wide pulse</li>
+	    <li><b>Pulse spacing:</b>How long between pulses (milliseconds). E.g. 500 msec is a
+	      pulse every 1/2 second. (Note: spacing must be longer than width.)</li>
+	  </ul>
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="custom-vib-options-row">
+	<div class="col-1"></div>
+	<div class="col-3 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend">
+	      <label class="input-group-text" for="custom-vib-name">
+		Custom-vibration file:
+	      </label>
+	    </div>
+	    <div>
+	    <input type="text" class="form-control" id="custom-vib-name" placeholder="<enter file
+name>" value="">
+	    </div>
+	  </div>
+	</div>
+	<div class="col-8">
+	  For custom vibrations, you'll create a data file using the
+	  <a href="tactile-vibration-designer.html">Tactile Vibration Designer</a>, and save the
+	  file to the micro-SD card that's installed on the "audio shield" of your Teensy
+	  microprocessor device. This is the name of that file.
+	</div>
+      </div>
+
+      <div class="row border-bottom bg-light">
+	<div class="col-4" style = "padding-left: 3em; padding-top: 1em; padding-bottom: 0.5em; text-align: left;">
+	  <h3 id="advanced-options-heading" style="paddin-bottom: 0px; display: none">Advanced Options</h3>
+	  <a href="#advanced" class="text-primary text-decoration-underline" onClick="toggleAdvancedOptions();" id="toggle-advanced">xx</a>
+	</div>
+	<div class="col-8">
+	</div>
+      </div>
+
+      <div class="row border-bottom" id="log-level-row">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <a name="advanced"></a>
+	  <div class="input-group">
+	    <select class="form-select" id="log-level">
+	      <option value="0">No logging</option>
+	      <option value="1">Activity logging</option>
+	      <option value="2">Extensive logging</option>
+	    </select>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Amount of detail in the Arduino app's "serial monitor" window. This is mostly for developers, or
+	  when trying to diagnose problems.
+	  <ul>
+	    <li>No logging: nothing is printed to the serial monitor</li>
+	    <li>Activity logging: Ordinary events (touch/release, audio start/stop, etc.) is logged</li>
+	    <li>Extensive logging: Produces a lot of information. Should only be used by C++ developers.</li>
+	  </ul>
+	</div>
+
+      </div>
+
+      <div class="row border-bottom" id="proximity-multiplier-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-1" style="text-align: right;">
+		Channel 1 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-1" value="1.0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-2" style="text-align: right;">
+		Channel 2 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-2" value="1.0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-3" style="text-align: right;">
+		Channel 3 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-3" value="1.0">
+	  </div>
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="proximity-multiplier-4" style="text-align: right;">
+		Channel 4 Proximity multiplier
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="proximity-multiplier-4" value="1.0">
+	  </div>
+	</div>
+	  
+	<div class="col-8">
+	  <p><i>NOTE: THIS FEATURE IS EXPERIMENTAL, and may change or be removed
+	  in future versions.</i></p>
+	  <p>
+	  The proximity-multiplier feature can be used to make the sensor
+	  more or less sensitive. Each sensor is specified separately.
+	  A value greater than 1 increases sensitivity, and less than one
+	  decreases it. For example 2.0 will double sensitivity; 0.5 will
+	  cut sensitivity in half. NOTE: reducing sensitivity also reduces
+	  the total volume you'll ever get, e.g. a multiplier of 0.5 means
+	  you'll never get more than 50% volume.
+	  </p>
+	  <p>
+	  Note that the multiplier also affects touch mode and the
+	  touch/release threshold.
+	  </p>
+	</div>
+
+      </div>
+      
+      <div class="row border-bottom" id="averaging-row">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="averaging" style="text-align: right;">
+		Averaging:
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="averaging" value="200">
+	  </div>
+	</div>
+
+	<div class="col-8">
+	  You probably don't need to modify this. This is the number of sensor
+	  readings that are averaged together to get the sensor's value. Higher
+	  numbers mean more smoothing, but also mean a slower response
+	  time. Lower numbers mean less smoothing (noiser signal) and faster
+	  response. Only change this if you have a noisy situation, usually
+	  indicated if your audio tracks "stutter" (start and stop rapidly).
+	</div>
+
+      </div>
+      
+      <div class="row border-bottom bg-light">
+	<h3>Create your sketch...</h3>
+      </div>
+      <div class="row border-bottom">
+	<div class="col-12 border-end d-flex align-items-center" style="padding-top:1em">
+	  <div class="container">
+	    <div class="row">
+	      <div class="col-2">
+	      </div>
+	      <div class="col-2 text-right" style="display: flex; align-items: center;">
+		<button onClick="createArduinoSketch();" type="button" class="btn btn-primary">Create Sketch</button>
+	      </div>
+	      <div class="col-8">
+		<b>Directions:</b>
+		<ul style="margin-bottom: 0px;">
+		  <li>Click the "Create Sketch" button.</li>
+		  <li>Click in the text area below with the sketch and type Command-A
+		    (Macintosh) or Cntl-A (Windows) to select all text.</li>
+		  <li>Select Command-C (Mac) or Cntl-C (Windows) to copy the text.</li>
+		  <li>Paste the text into the sketch window of your Arduino app.</li>
+		</ul>
+		<i>You can edit the sketch directly in the Arduino app, but be careful not to
+		  change the syntax (especially "punctuation").</i>
+	      </div>
+	    </div>
+	    <div class="row" style="height: 20em;">
+	      <textarea id="sketch" class="text-area"
+			autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+			style="margin-top: 1em; width:60; height:30;
+			       font-family: Courier; font-size: 0.8em;"
+		>Click "Create Sketch" when your configuration is ready.
+	      </textarea>
+	    </div>
+	  </div>
+	</div>
+
+      </div>
+
+      <div class="row" style="padding-top: 1em;">
+	<style>
+	  .notice {font-size: 0.7em; font-color: #999999; font-style: italic; margin-bottom: 0.5em; padding-left:3em; padding-right: 3em;}
+	</style>
+	<p class="notice">Copyright &copy;2025, Craig James</p>
+	<p class="notice">This file is part of of the "Tactile" library.
+	  Tactile is free software: you can redistribute it and/or modify it under
+	the terms of the GNU Lesser General Public License (LGPL) as published by
+	the Free Software Foundation, either version 3 of the License, or (at
+	your option) any later version.
+	Tactile is distributed in the hope that it will be useful, but WITHOUT
+	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+	FITNESS FOR A PARTICULAR PURPOSE. See the LGPL for more details.
+	You should have received a copy of the LGPL along with Tactile. If not,
+	see <a href="https://www.gnu.org/licenses/" target="lic">https://www.gnu.org/licenses/</a>.</p>
+	
+      </div>		      
+
+    </div>
+    
+  </body>
+</html>
+<div style="display:none" id="square-wave">
+  <img src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAlgCWAAD/4QCgRXhpZgAATU0AKgAAAAgABQEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAWodpAAQAAAABAAAAbgAAAAAAAACWAAAAAQAAAJYAAAABMjAyNTowMjowMyAxMzoyMzozNgAAA6ABAAMAAAABAAEAAKACAAMAAAABAEAAAKADAAMAAAABABAAAAAAAAD/4QtDaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjUuMCI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNS0wMi0wM1QxMzoyMzozNi0wODowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNS0wMi0wM1QxMzoyMzozNi0wODowMCI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InByb2R1Y2VkIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZmZpbml0eSBEZXNpZ25lciAxLjkuMyIgc3RFdnQ6d2hlbj0iMjAyNS0wMi0wM1QxMzoyMzozNi0wODowMCIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/tACxQaG90b3Nob3AgMy4wADhCSU0EJQAAAAAAENQdjNmPALIE6YAJmOz4Qn7/4gJkSUNDX1BST0ZJTEUAAQEAAAJUbGNtcwQwAABtbnRyUkdCIFhZWiAH6QACAAMAFQASABphY3NwQVBQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtkZXNjAAABCAAAAD5jcHJ0AAABSAAAAEx3dHB0AAABlAAAABRjaGFkAAABqAAAACxyWFlaAAAB1AAAABRiWFlaAAAB6AAAABRnWFlaAAAB/AAAABRyVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaHJtAAACMAAAACRtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACIAAAAcAHMAUgBHAEIAIABJAEUAQwA2ADEAOQA2ADYALQAyAC4AMQAAbWx1YwAAAAAAAAABAAAADGVuVVMAAAAwAAAAHABOAG8AIABjAG8AcAB5AHIAaQBnAGgAdAAsACAAdQBzAGUAIABmAHIAZQBlAGwAeVhZWiAAAAAAAAD21gABAAAAANMtc2YzMgAAAAAAAQxCAAAF3v//8yUAAAeTAAD9kP//+6H///2iAAAD3AAAwG5YWVogAAAAAAAAb6AAADj1AAADkFhZWiAAAAAAAAAknwAAD4QAALbDWFlaIAAAAAAAAGKXAAC3hwAAGNlwYXJhAAAAAAADAAAAAmZmAADypwAADVkAABPQAAAKW2Nocm0AAAAAAAMAAAAAo9cAAFR7AABMzQAAmZoAACZmAAAPXP/bAEMAEAsMDgwKEA4NDhIREBMYKBoYFhYYMSMlHSg6Mz08OTM4N0BIXE5ARFdFNzhQbVFXX2JnaGc+TXF5cGR4XGVnY//bAEMBERISGBUYLxoaL2NCOEJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY//AABEIABAAQAMBIgACEQEDEQH/xAAaAAEAAgMBAAAAAAAAAAAAAAAFAwYAAQIE/8QAKRAAAgICAgIBAAsAAAAAAAAAAQIDBAURAAYSITETFEFRYXGBkbHB4f/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCqdYowZLsFSpaBMMhbyAOidKT8/pxanJ1m3k4aQw1hWlmWIMbJ9bOt8M6nagpdkp2LMgjhRm8nb4G1I/vnnxViKHsNSzI/jClpHZj9ihgd8DLdOKHsU1FPL6FLbRD378Q+v447lpOtYvJz0mwcshhbx8xbYb9fdzqzi8ZPnJb47DSCyWTMEIOwC29cF7RYht9jvT15FkieTauvwfQ4Ena6FbHZpoKaGOExo4UsW1sb+TxXIjr+HWlDNhGtSS1Y5mk+tumyw9+h+XJM3VxGavLcXPVoPKJF8GjYkaGuF9vsVZ79RadlLCQ044jIg9Ejf+cDfZqlCKtjLePqmqluFnaMyF9EHXyeActkqYnLYXFRzZmKpLViZHR4mY7J/DgWVpU6Txinko7wYEsUjK+P78D/2Q==">
+</div>
+
+<div style="display:none;" id="sawtooth-wave">
+  <img src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAlgCWAAD/4QCgRXhpZgAATU0AKgAAAAgABQEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAWodpAAQAAAABAAAAbgAAAAAAAACWAAAAAQAAAJYAAAABMjAyNTowMjowMyAxMzo0NTozMAAAA6ABAAMAAAABAAEAAKACAAMAAAABAEAAAKADAAMAAAABABAAAAAAAAD/4QtDaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjUuMCI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNS0wMi0wM1QxMzo0NTozMC0wODowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNS0wMi0wM1QxMzo0NTozMC0wODowMCI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InByb2R1Y2VkIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZmZpbml0eSBEZXNpZ25lciAxLjkuMyIgc3RFdnQ6d2hlbj0iMjAyNS0wMi0wM1QxMzo0NTozMC0wODowMCIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/tACxQaG90b3Nob3AgMy4wADhCSU0EJQAAAAAAENQdjNmPALIE6YAJmOz4Qn7/4gJkSUNDX1BST0ZJTEUAAQEAAAJUbGNtcwQwAABtbnRyUkdCIFhZWiAH6QACAAMAFQASABphY3NwQVBQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtkZXNjAAABCAAAAD5jcHJ0AAABSAAAAEx3dHB0AAABlAAAABRjaGFkAAABqAAAACxyWFlaAAAB1AAAABRiWFlaAAAB6AAAABRnWFlaAAAB/AAAABRyVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaHJtAAACMAAAACRtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACIAAAAcAHMAUgBHAEIAIABJAEUAQwA2ADEAOQA2ADYALQAyAC4AMQAAbWx1YwAAAAAAAAABAAAADGVuVVMAAAAwAAAAHABOAG8AIABjAG8AcAB5AHIAaQBnAGgAdAAsACAAdQBzAGUAIABmAHIAZQBlAGwAeVhZWiAAAAAAAAD21gABAAAAANMtc2YzMgAAAAAAAQxCAAAF3v//8yUAAAeTAAD9kP//+6H///2iAAAD3AAAwG5YWVogAAAAAAAAb6AAADj1AAADkFhZWiAAAAAAAAAknwAAD4QAALbDWFlaIAAAAAAAAGKXAAC3hwAAGNlwYXJhAAAAAAADAAAAAmZmAADypwAADVkAABPQAAAKW2Nocm0AAAAAAAMAAAAAo9cAAFR7AABMzQAAmZoAACZmAAAPXP/bAEMAEAsMDgwKEA4NDhIREBMYKBoYFhYYMSMlHSg6Mz08OTM4N0BIXE5ARFdFNzhQbVFXX2JnaGc+TXF5cGR4XGVnY//bAEMBERISGBUYLxoaL2NCOEJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY//AABEIABAAQAMBIgACEQEDEQH/xAAXAAADAQAAAAAAAAAAAAAAAAAEBQYC/8QALxAAAgIBAQQIBQUAAAAAAAAAAQIDBQQRACExURITMkFCUmHwBhQjNNFicXKB4f/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCMqKrJt81cbGUa8Xduyi95J5bUZwvh+zDU1aerzIR9DMc7sl/Ep5Dl71BtbPFr8A01I/Sib7rKG4ztyHJff7zysVYMpIYHUEcRsG8iCXGneCdGjljPRZWG8HZ1R1EHyzW9wTHXRHRU8WQ3lX05n/dD4c6nvoI8i+lMGZiAdYyDfloOA/lw98Et5cy2+SpKiHGiHQggXsxr+fXYGFtXYllXm5pIurjTdlYgOpgPmH6T779J5EaR1SNSzsdFUDUk8tjKe1yKfOXJxyD4XjbsyL3qdqGTPoqhGs6cdZnZQ+jC41GH5v714fjiGYsKloI48W8jORm5Q0lCH7RDwPq3A+96S8p5afLCMwlx5R04J17Mi8xsBLLJPK8srs8jkszMdSTz2eUtrjS4bU1yScFzrFNpq2O/MenMbB//2Q==">
+</div>
+
+<div style="display:none;" id="single-pulse-wave">
+  <img src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAlgCWAAD/4QCgRXhpZgAATU0AKgAAAAgABQEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAWodpAAQAAAABAAAAbgAAAAAAAACWAAAAAQAAAJYAAAABMjAyNTowMjowMyAxMzo0ODowMQAAA6ABAAMAAAABAAEAAKACAAMAAAABAEAAAKADAAMAAAABABAAAAAAAAD/4QtDaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjUuMCI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNS0wMi0wM1QxMzo0ODowMS0wODowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNS0wMi0wM1QxMzo0ODowMS0wODowMCI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InByb2R1Y2VkIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZmZpbml0eSBEZXNpZ25lciAxLjkuMyIgc3RFdnQ6d2hlbj0iMjAyNS0wMi0wM1QxMzo0ODowMS0wODowMCIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/tACxQaG90b3Nob3AgMy4wADhCSU0EJQAAAAAAENQdjNmPALIE6YAJmOz4Qn7/4gJkSUNDX1BST0ZJTEUAAQEAAAJUbGNtcwQwAABtbnRyUkdCIFhZWiAH6QACAAMAFQASABphY3NwQVBQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtkZXNjAAABCAAAAD5jcHJ0AAABSAAAAEx3dHB0AAABlAAAABRjaGFkAAABqAAAACxyWFlaAAAB1AAAABRiWFlaAAAB6AAAABRnWFlaAAAB/AAAABRyVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaHJtAAACMAAAACRtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACIAAAAcAHMAUgBHAEIAIABJAEUAQwA2ADEAOQA2ADYALQAyAC4AMQAAbWx1YwAAAAAAAAABAAAADGVuVVMAAAAwAAAAHABOAG8AIABjAG8AcAB5AHIAaQBnAGgAdAAsACAAdQBzAGUAIABmAHIAZQBlAGwAeVhZWiAAAAAAAAD21gABAAAAANMtc2YzMgAAAAAAAQxCAAAF3v//8yUAAAeTAAD9kP//+6H///2iAAAD3AAAwG5YWVogAAAAAAAAb6AAADj1AAADkFhZWiAAAAAAAAAknwAAD4QAALbDWFlaIAAAAAAAAGKXAAC3hwAAGNlwYXJhAAAAAAADAAAAAmZmAADypwAADVkAABPQAAAKW2Nocm0AAAAAAAMAAAAAo9cAAFR7AABMzQAAmZoAACZmAAAPXP/bAEMAEAsMDgwKEA4NDhIREBMYKBoYFhYYMSMlHSg6Mz08OTM4N0BIXE5ARFdFNzhQbVFXX2JnaGc+TXF5cGR4XGVnY//bAEMBERISGBUYLxoaL2NCOEJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY//AABEIABAAQAMBIgACEQEDEQH/xAAYAAADAQEAAAAAAAAAAAAAAAAABAYDBf/EACcQAAEDAwQCAAcAAAAAAAAAAAECAwQABREGEhZWMZETIUFxgaHB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AJTTEFi5agiRJQJZcKtwBwThJPn8V1obmmZdzZhCzSEqdeS0FGSflk4zXM0nKYhakhyJLgbZQpW5avAykj+0vapDTOoYklxe1lEpC1KP0SFA5oMrtHbiXebGaz8Nl9bacnJwFEClKqrlZ7ZNucqUnUUFKX3luBJByMknH7pbjtu7JA9KoJ6iqHjtu7JA9Gjjtu7JA9GgnqKoeO2/skD0awnWWFFiOPNXyHIWnw0gHcr7UH//2Q==">
+</div>
+
+<div style="display:none;" id="single-pulse-fade-wave">
+  <img src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAlgCWAAD/4QCgRXhpZgAATU0AKgAAAAgABQEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAWodpAAQAAAABAAAAbgAAAAAAAACWAAAAAQAAAJYAAAABMjAyNTowMjowMyAxNDoyMzo1MwAAA6ABAAMAAAABAAEAAKACAAMAAAABAEAAAKADAAMAAAABABAAAAAAAAD/4QvZaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjUuMCI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIHhtcDpNb2RpZnlEYXRlPSIyMDI1LTAyLTAzVDE0OjIzOjUzLTA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI1LTAyLTAzVDE0OjIzOjUzLTA4OjAwIj4gPGRjOnRpdGxlPiA8cmRmOkFsdD4gPHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5zaW5nbGUtcHVsc2UtZmFkZS02NHgxNjwvcmRmOmxpPiA8L3JkZjpBbHQ+IDwvZGM6dGl0bGU+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InByb2R1Y2VkIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZmZpbml0eSBEZXNpZ25lciAxLjkuMyIgc3RFdnQ6d2hlbj0iMjAyNS0wMi0wM1QxNDoyMzo1My0wODowMCIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/tAGRQaG90b3Nob3AgMy4wADhCSU0EBAAAAAAAKxwBWgADGyVHHAIAAAIABBwCBQAXc2luZ2xlLXB1bHNlLWZhZGUtNjR4MTYAOEJJTQQlAAAAAAAQ6Lpk6W5ne2PAkxZJUw6r7f/iAmRJQ0NfUFJPRklMRQABAQAAAlRsY21zBDAAAG1udHJSR0IgWFlaIAfpAAIAAwAVABIAGmFjc3BBUFBMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtbGNtcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC2Rlc2MAAAEIAAAAPmNwcnQAAAFIAAAATHd0cHQAAAGUAAAAFGNoYWQAAAGoAAAALHJYWVoAAAHUAAAAFGJYWVoAAAHoAAAAFGdYWVoAAAH8AAAAFHJUUkMAAAIQAAAAIGdUUkMAAAIQAAAAIGJUUkMAAAIQAAAAIGNocm0AAAIwAAAAJG1sdWMAAAAAAAAAAQAAAAxlblVTAAAAIgAAABwAcwBSAEcAQgAgAEkARQBDADYAMQA5ADYANgAtADIALgAxAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAADAAAAAcAE4AbwAgAGMAbwBwAHkAcgBpAGcAaAB0ACwAIAB1AHMAZQAgAGYAcgBlAGUAbAB5WFlaIAAAAAAAAPbWAAEAAAAA0y1zZjMyAAAAAAABDEIAAAXe///zJQAAB5MAAP2Q///7of///aIAAAPcAADAblhZWiAAAAAAAABvoAAAOPUAAAOQWFlaIAAAAAAAACSfAAAPhAAAtsNYWVogAAAAAAAAYpcAALeHAAAY2XBhcmEAAAAAAAMAAAACZmYAAPKnAAANWQAAE9AAAApbY2hybQAAAAAAAwAAAACj1wAAVHsAAEzNAACZmgAAJmYAAA9c/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw5Mzg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAEABAAwEiAAIRAQMRAf/EABkAAAIDAQAAAAAAAAAAAAAAAAQGAAMFAf/EADAQAAEDAgMDCgcAAAAAAAAAAAECAwQABRETIQYSMRQVFiI0QVFhcZEyVFVjgZTh/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ABL1Js0RcOBcLSlaOSNKz453HUkjXyV+azTs1GuA37Bc2pR+XeOW6PLXQ+ulVbZPNPXlGS4hxCI7Sd5JxHw1gg4HEUBU62TrcvcmxXWD3FacAfQ8DQtbEHai7QkZQk8oY4FqQMxJHhrr7UVzvYJnb7HkLPFyE7u+yDpQLtSmLmzZuT1o18djfbkxyT7p0rnRmK52faG1q8MxwooF6pTD0Sc+tWX9v+VXI2XcYjuOm72hYQkq3USsVHDuAw40H//Z">
+</div>
+
+<div style="display:none;" id="straight-line">
+  <img src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAlgCWAAD/4QCgRXhpZgAATU0AKgAAAAgABQEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAWodpAAQAAAABAAAAbgAAAAAAAACWAAAAAQAAAJYAAAABMjAyNTowMjowMyAxNDozOTowNgAAA6ABAAMAAAABAAEAAKACAAMAAAABAEAAAKADAAMAAAABABAAAAAAAAD/4QvVaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjUuMCI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiIHhtcDpNb2RpZnlEYXRlPSIyMDI1LTAyLTAzVDE0OjM5OjA2LTA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI1LTAyLTAzVDE0OjM5OjA2LTA4OjAwIj4gPGRjOnRpdGxlPiA8cmRmOkFsdD4gPHJkZjpsaSB4bWw6bGFuZz0ieC1kZWZhdWx0Ij5zdHJhaWdodC1saW5lLTY0eDE2PC9yZGY6bGk+IDwvcmRmOkFsdD4gPC9kYzp0aXRsZT4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0icHJvZHVjZWQiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFmZmluaXR5IERlc2lnbmVyIDEuOS4zIiBzdEV2dDp3aGVuPSIyMDI1LTAyLTAzVDE0OjM5OjA2LTA4OjAwIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8P3hwYWNrZXQgZW5kPSJ3Ij8+/+0AYFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAnHAFaAAMbJUccAgAAAgAEHAIFABNzdHJhaWdodC1saW5lLTY0eDE2ADhCSU0EJQAAAAAAEDKxQvnutrJwKtoNyVY25Hr/4gJkSUNDX1BST0ZJTEUAAQEAAAJUbGNtcwQwAABtbnRyUkdCIFhZWiAH6QACAAMAFQASABphY3NwQVBQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtkZXNjAAABCAAAAD5jcHJ0AAABSAAAAEx3dHB0AAABlAAAABRjaGFkAAABqAAAACxyWFlaAAAB1AAAABRiWFlaAAAB6AAAABRnWFlaAAAB/AAAABRyVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaHJtAAACMAAAACRtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACIAAAAcAHMAUgBHAEIAIABJAEUAQwA2ADEAOQA2ADYALQAyAC4AMQAAbWx1YwAAAAAAAAABAAAADGVuVVMAAAAwAAAAHABOAG8AIABjAG8AcAB5AHIAaQBnAGgAdAAsACAAdQBzAGUAIABmAHIAZQBlAGwAeVhZWiAAAAAAAAD21gABAAAAANMtc2YzMgAAAAAAAQxCAAAF3v//8yUAAAeTAAD9kP//+6H///2iAAAD3AAAwG5YWVogAAAAAAAAb6AAADj1AAADkFhZWiAAAAAAAAAknwAAD4QAALbDWFlaIAAAAAAAAGKXAAC3hwAAGNlwYXJhAAAAAAADAAAAAmZmAADypwAADVkAABPQAAAKW2Nocm0AAAAAAAMAAAAAo9cAAFR7AABMzQAAmZoAACZmAAAPXP/bAEMAEAsMDgwKEA4NDhIREBMYKBoYFhYYMSMlHSg6Mz08OTM4N0BIXE5ARFdFNzhQbVFXX2JnaGc+TXF5cGR4XGVnY//bAEMBERISGBUYLxoaL2NCOEJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY//AABEIABAAQAMBIgACEQEDEQH/xAAXAAEBAQEAAAAAAAAAAAAAAAAGAAQF/8QAJBAAAAQHAAEFAAAAAAAAAAAAAAIDBQEEERVWlNETEiExUfD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AJtbi3yaByTjQnOniasFDLGJGEKfFIfvcbb4y4yhsn4DwgCG+MuMobJ+CvjLjKGyfgPCAIb4y4yhsn4K+MuMobJ+A8IAhvjLjKGyfgyObm3Tct45RmSk1PVCPkKsY0afVIjkiAf/Z">
+</div>
+
+<script src="./builder.js"></script>
+
+ <script src="https://getbootstrap.com//docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

@@ -2,39 +2,46 @@
 
 set -e
 
+usage() {
+    echo $1
+    echo "usage: $0 1|2 destination"
+    echo "       example: $0 2 2025-01-27 \$HOME/tmp"
+    exit 1;
+}
+
+
 if [ -z "$TEENSY" ] ; then
-    echo "Environment variable TEENSY is not defined."
-    exit 1
+    usage "Environment variable TEENSY is not defined."
 fi
 
-srcdir=$1
+version=$1
 date=$2
 destdir=$3
-if [ -z "$srcdir" -o -z "$date" -o -z "$destdir" ] ; then
-    echo "Usage: $0 source-dir date dest-dir"
-    echo "       example: $0 Teensy-2 2025-01-27 \$HOME/tmp"
-    exit 1
+if [ -z "$version" -o -z "$date" -o -z "$destdir" ] ; then
+    usage "Missing parameter"
+fi
+if [ "$version" != "1" -a "$version" != "2" ] ; then
+    usage "Error: version must be 1 or 2";
 fi
 (cd /
  if [ ! -d $destdir ]; then
-    echo "destination must be an absolute path: $destdir"
+    usage "Destination must be an absolute path: $destdir"
  fi
 )
 
+srcdir=$TEENSY/Teensy-$version
 if [ ! -d $srcdir ] ; then
-    echo "Can't find source directory '$srcdir'";
-    exit 1;
+    usage "Can't find source directory '$srcdir'";
 fi
 
 newdir=$destdir/Arduino
 if [ -d $newdir ] ; then
-    echo "Error: $newdir exists, please remove it."
-    exit 1
+    usage "Error: $newdir exists, please remove it."
 fi
 
 # Libraries and sketches
 mkdir $newdir
-cd $TEENSY/$srcdir
+cd $srcdir
 find libraries sketches -print | grep -v '\.git' | grep -v '\.DS_Store' | cpio -pdmv $newdir
 
 # Gemma-M0 files
@@ -46,8 +53,8 @@ mkdir $newdir/gemma-m0
 cp $files $newdir/gemma-m0
 
 # tactile-builder
-cd $TEENSY/tools/builder
-./compile-single-page-builder.sh $newdir/tactile-builder.html
+cd $TEENSY/tools
+./compile-single-page-builder.sh $version $newdir/tactile-builder.html
 
 # Make the TAR file
 cd $destdir

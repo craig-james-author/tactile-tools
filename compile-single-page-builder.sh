@@ -23,19 +23,30 @@
 # Copyright (c) 2025, Craig A. James
 #======================================================================
 
-dest=$1
+version=$1
+dest=$2
+
+usage() {
+    echo $1
+    echo "usage: $0 1|2 destination"
+    exit 1;
+}
+
+if [ "$version" != "1" -a "$version" != "2" ] ; then
+    usage "Error: version must be 1 or 2";
+fi
 if [ -z "$dest" ] ; then
-    echo "Missing destination file."
+    usage "Error: Missing destination file."
     exit 1;
 fi
 
-cat builder.html | egrep -v -e "<link href=.*bootstrap" | egrep -v -e "<script.*</script>" >$dest
+cat builder-$version/builder.html | egrep -v -e "<link href=.*bootstrap" | egrep -v -e "<script.*</script>" >$dest
 
 echo "<script>" >>$dest
-cat builder.js | egrep -v -e "\\s*//" >>$dest
+cat builder-$version/builder.js | egrep -v -e "\\s*//" >>$dest
 echo "</script>" >>$dest
 
 echo "<style>" >>$dest
-cat bootstrap.min.css >>$dest
+cat builder-$version/bootstrap.min.css >>$dest
 echo "</style>" >>$dest
 echo "Done: $dest"
