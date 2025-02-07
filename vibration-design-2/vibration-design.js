@@ -1,5 +1,19 @@
+
+
+function initializeOnLoad() {
+    updateVibrationFrequency();
+    changeNumberOfSliders();
+}
+
 function changeNumberOfSliders() {
     nSliders = document.getElementById("number-of-sliders").value;
+    if (isNaN(parseInt(nSliders))) {
+	alert("'Number of points' must be a number");
+	return;
+    }
+    nSliders = parseInt(nSliders);
+    document.getElementById("number-of-sliders").value = nSliders;
+
     if (nSliders > 200) {
 	nSliders = 200;
 	alert("Max points is 200");
@@ -26,42 +40,12 @@ function changeNumberOfSliders() {
     }
 }
 
-function getCookie(name) {
-    var cookieValue = document.cookie;
-    var cookies = cookieValue.split("; ");
-    for (var i = 0; i < cookies.length; i++) {
-	if (cookies[i].startsWith(name+"=")) {
-	    var nameVal = cookies[i].split("=");
-	    return nameVal[1];
-	}
+function validateSoundLength() {
+    var e = document.getElementById("sound-length");
+    if (isNaN(parseFloat(e.value))) {
+	alert("Sound length must be a number");
+	e.value = 2;
     }
-    return null;
-}
-
-function initializeOnLoad() {
-
-    updateVibrationFrequency();
-
-    var numSliders = getCookie("numberSliders");
-    if (!numSliders) {
-	changeNumberOfSliders();
-	return;
-    }
-    var soundLength = getCookie("soundLength");
-    var volumes = getCookie("volumes");
-    if (!soundLength) {
-	soundLength = 10;
-    }
-
-    document.getElementById("number-of-sliders").value = numSliders
-    document.getElementById("sound-length").value = soundLength;
-    changeNumberOfSliders();
-    volumesArray = volumes.split(",");
-    for (var i = 0; i < volumesArray.length; i++) {
-	var name = "slider" + (i+1);
-	document.getElementById(name).value = volumesArray[i];
-    }
-    alert("initializeOnLoad");
 }
 
 function simulate() {
@@ -110,62 +94,84 @@ function updateVibrationFrequency() {
     label.innerHTML = "Frequency: " + freq + " Hz";
 }
 
-
-function createConfiguration() {
-
+function writeSoundFile() {
     var numPoints   = parseInt(document.getElementById("number-of-sliders").value);
     var soundLength = parseFloat(document.getElementById("sound-length").value);
     var frequency   = parseInt(document.getElementById("vibration-frequency").value);
-    var msecPerPoint = soundLength * 1000 / numPoints;
-
     var volumeValues = [];
+
+    var file = "";
+    file += "soundLength:" + soundLength + "\n";
+    file += "frequency:" + frequency + "\n";
+    file += "numPoints:" + numPoints + "\n";
+    file += "volumes:\n";
     var numPoints   = parseInt(document.getElementById("number-of-sliders").value);
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
-	volumeValues.push(document.getElementById(name).value);
+	file += document.getElementById(name).value + "\n";
     }
-    var configuration = {};
-    configuration.msecPerPoint = msecPerPoint;
-    configuration.soundLength = soundLength;
-    configuration.frequency = frequency;
-    configuration.volumes = volumeValues;
-    return configuration;
-}
-
-function writeSoundFile() {
-    var configuration = createConfiguration();
-    var json = JSON.stringify(configuration, null, "  ");
-    document.getElementById("vibration-file").value = json;
+    document.getElementById("vibration-file").value = file;
 }
 
 function readSoundFile() {
-    var file = document.getElementById("vibration-file").value;
-    var configuration;
-    try {
-	configuration = JSON.parse(file);
-    } catch(error) {
-	alert("Sorry, can't parse sound file: '" + error + "'");
+    var soundLength, msecPerPoint, frequency, volumes;
+    var lines = document.getElementById("vibration-file").value.split("\n"); 
+    var startOfVolumes = 0;
+    var i, nameValue;
+    for (i = 0; i < lines.length; i++) {
+	nameValue = lines[i].split(":");
+	if      (nameValue[0] == "soundLength" ) { soundLength  = nameValue[1]; }
+	else if (nameValue[0] == "frequency"   ) { frequency    = nameValue[1]; }
+	else if (nameValue[0] == "numPoints"   ) { numPoints    = nameValue[1]; }
+	else if (nameValue[0] == "volumes") {
+	    volumes = [];
+	    startOfVolumes = i+1;
+	    break;
+	} else {
+	    alert("Error in sound file: unknown element '" + nameValue[0] + "'");
+	    return;
+	}
+    }
+    if (typeof(volume) == undefined || startOfVolumes == 0) {
+	alert("Error in sound file: can't find 'volumes' values");
 	return;
     }
-    if (!configuration) {
-	alert("Warning: can't parse sound file");
-	return;
+    var oneWarning = false;
+    for (i = startOfVolumes; i < lines.length; i++) {
+	if (lines[i].length == 0) {
+	    break;
+	}
+	if (isNaN(parseInt(lines[i]))) {
+	    if (!oneWarning) {
+		alert("Error: volume values must be numbers: '" + lines[i] + "' isn't valid");
+		oneWarning = true;
+	    }
+	    lines[i] = "0";
+	}
+	volumes[i-startOfVolumes] = lines[i];
     }
-    var soundLength  = configuration.soundLength;
-    var msecPerPoint = configuration.msecPerPoint;
-    var frequency    = configuration.frequency;
-    var volumes      = configuration.volumes;
-    if (!soundLength || !msecPerPoint || !volumes) {
-	alert("Warning: can't parse sound file");
-	return;
+
+    if (typeof(soundLength)  == undefined) {alert("Error in sound file: missing 'soundLength'");  return;}
+    if (typeof(frequency)    == undefined) {alert("Error in sound file: missing 'frequency'");    return;}
+    if (typeof(numPoints)    == undefined) {alert("Error in sound file: missing 'numPoints'");    return;}
+    if (isNaN(parseFloat(soundLength))) {alert("Error in sound file: 'soundLength' must be a number"); return;}
+    if (isNaN(parseFloat(frequency)))   {alert("Error in sound file: 'frequency' must be a number");   return;}
+    if (isNaN(parseFloat(numPoints)))   {alert("Error in sound file: 'numPoints' must be a number");   return;}
+    if (numPoints != volumes.length) {
+	alert("Warning: error in sound file: 'numPoints' (" + numPoints +
+	      "\ndoesn't match actual number of volume values (" + volumes.length +
+	      ")\nusing '" + volumes.length + "'");
     }
+
     var numPoints = volumes.length;
-    document.getElementById("number-of-sliders").value = volumes.length;
+    document.getElementById("number-of-sliders").value = numPoints;
+    document.getElementById("sound-length").value = soundLength;
+    document.getElementById("vibration-frequency").value = frequency;
+    changeNumberOfSliders();
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
 	document.getElementById(name).value = volumes[i-1];
     }
-    document.getElementById("sound-length").value = soundLength;
-    document.getElementById("vibration-frequency").value = frequency;
     updateVibrationFrequency();
 }
+
