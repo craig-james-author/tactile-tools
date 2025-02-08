@@ -147,68 +147,46 @@ function touchModeChanged() {
     }
 }
 
-function vibrationModeChanged() {
-    var e = document.getElementById("vibration-type");
-    var v = e.options[e.selectedIndex].value;
-    var nrow = document.getElementById("no-vib-options-row");
-    var vrow = document.getElementById("vib-options-row");
-    var prow = document.getElementById("pulse-options-row");
-    var crow = document.getElementById("custom-vib-options-row");
-    nrow.style.display = "none";
-    vrow.style.display = "none";
-    prow.style.display = "none";
-    crow.style.display = "none";
-    if      (v == "vibrate") { vrow.style.display = ""; }
-    else if (v == "pulses")  { prow.style.display = ""; }
-    else if (v == "custom")  { crow.style.display = ""; }
-    else                     { nrow.style.display = ""; }
-}
-
-function selectVibWaveform() {
-    var e = document.getElementById("vibration-waveform");
+function selectVibWaveform(channel) {
+    var e = document.getElementById("vibration-waveform-"+channel);
     var v = e.options[e.selectedIndex].value;
     var sl = document.getElementById("straight-line-container");
     var sq = document.getElementById("square-wave-container");
     var sw = document.getElementById("sawtooth-wave-container");
     var pw = document.getElementById("single-pulse-wave-container");
     var pf = document.getElementById("single-pulse-fade-wave-container");
-
+    var cu = document.getElementById("custom-file-wave-container");
     sl.classList.remove("text-primary");
     sq.classList.remove("text-primary");
     sw.classList.remove("text-primary");
     pw.classList.remove("text-primary");
     pf.classList.remove("text-primary");
+    cu.classList.remove("text-primary");
     if      (v == "continuous")        { sl.classList.add("text-primary"); }
     else if (v == "square-wave")       { sq.classList.add("text-primary"); }
     else if (v == "sawtooth-wave")     { sw.classList.add("text-primary"); }
     else if (v == "single-pulse")      { pw.classList.add("text-primary"); }
     else if (v == "single-pulse-fade") { pf.classList.add("text-primary"); }
-}
+    else if (v == "custom-file")       { cu.classList.add("text-primary"); }
 
-var advancedOptionsVisible = true;
-
-function toggleAdvancedOptions() {
-    advancedOptionsVisible = !advancedOptionsVisible;
-    var display = advancedOptionsVisible ? "" : "none";
-    document.getElementById("log-level-row").style.display = display;
-    document.getElementById("proximity-multiplier-row").style.display = display;
-    document.getElementById("averaging-row").style.display = display;
-    var advancedItem    = document.getElementById("toggle-advanced");
-    var advancedHeading = document.getElementById("advanced-options-heading");
-    if (advancedOptionsVisible) {
-	advancedItem.innerHTML = "<<< Hide advanced options";
-	advancedHeading.style.display = "";
+    var customFileContainer = document.getElementById("custom-vib-file-container-"+channel);
+    var customFileExplanation = document.getElementById("custom-vib-explanation");
+    if (v == "custom-file") {
+	customFileContainer.style.display = "";
+	customFileExplanation.style.display = "";
     } else {
-	advancedItem.innerHTML = "Show advanced options >>>";
-	advancedHeading.style.display = "none";
+	customFileContainer.style.display = "none";
+	customFileExplanation.style.display = "none";
     }
 }
 
 function initializeOnLoad() {
-    toggleAdvancedOptions();
     touchModeChanged();
-    vibrationModeChanged();
     placeImages();
+    showHideAudio();
+    showHideHaptic();
+    showHideAdvanced();
+    selectHapticOutputChannel(1);
 }
 
 function isNumeric(str) {
@@ -242,3 +220,45 @@ function placeImages() {
     placeImage("single-pulse-fade-wave", "single-pulse-fade-wave-here");
 }
 
+function showHideAudio() {
+    var audioHiddenDiv = document.getElementById("audio-options-disabled");
+    var audioShownDiv  = document.getElementById("audio-options");
+    if (document.getElementById('show-hide-audio').checked) {
+	audioHiddenDiv.style.display = "none";
+	audioShownDiv.style.display = "";
+    } else {
+	audioHiddenDiv.style.display = "";
+	audioShownDiv.style.display = "none";
+    }
+}
+
+function showHideHaptic() {
+    var hapticHiddenDiv = document.getElementById("haptic-options-disabled");
+    var hapticShownDiv  = document.getElementById("haptic-options");
+    if (document.getElementById('show-hide-haptic').checked) {
+	hapticHiddenDiv.style.display = "none";
+	hapticShownDiv.style.display = "";
+    } else {
+	hapticHiddenDiv.style.display = "";
+	hapticShownDiv.style.display = "none";
+    }
+}
+
+function showHideAdvanced() {
+    var advancedHiddenDiv = document.getElementById("advanced-options-disabled");
+    var advancedShownDiv  = document.getElementById("advanced-options");
+    if (document.getElementById('show-hide-advanced').checked) {
+	advancedHiddenDiv.style.display = "none";
+	advancedShownDiv.style.display = "";
+    } else {
+	advancedHiddenDiv.style.display = "";
+	advancedShownDiv.style.display = "none";
+    }
+}
+
+function selectHapticOutputChannel(channel) {
+    for (var i = 1; i <= 4; i++) {
+	document.getElementById("channel-options-"+i).style.display = (channel == i) ? "" : "none";
+    }
+    selectVibWaveform(channel);
+}

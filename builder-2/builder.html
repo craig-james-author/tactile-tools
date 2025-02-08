@@ -9,12 +9,14 @@
   <body onload="initializeOnLoad();">
 
     <div class="container text-left" style="margin-top: 3em;">
-
       <div class="row" style="margin-bottom: 2em;">
 	<div class="col">
 	  <h1>Tactile Project Configurator</h1>
 	</div>
       </div>
+    </div>
+
+    <div class="container text-left" style="margin-top: 3em;">
 
       <div class="row border-bottom border-top bg-light">
 	<h3>Sensor Options</h3>
@@ -101,11 +103,32 @@
 	  sensitivity. Release threshold MUST be lower than the touch threshold.
 	</div>
       </div>
-    
+    </div>
+
+    <div class="container text-left" style="margin-top: 1em;">
       <div class="row border-bottom border-top bg-light">
-	<h3>Audio Options</h3>
+	<div class="col-1">
+	  <div class="form-check form-switch" style="padding-top: 0.5em;">
+	    <input class="form-check-input" type="checkbox" id="show-hide-audio" onChange="showHideAudio()" checked>
+	  </div>
+	</div>
+	<div class="col-3">
+	  <h3>Audio Options</h3>
+	</div>
+	<div class="col-8" style="padding-top: 0.5em;">
+	  <i>Click on the switch at the left to enable/disable audio ouput.</i>
       </div>
 
+      <div class="row border-bottom" id="audio-options-disabled">
+	<div class="col-1"></div>
+	<div class="col-11" style="padding: 1em;">
+	  <i>Audio output is disabled. Click on the switch above to enable
+	    and show all the audio-output options.</i>
+	</div>
+      </div>
+    </div>
+
+    <div class="container text-left" id="audio-options">
       <div class="row border-bottom" id="volume-row">
 	<div class="col-4 border-end">
 	  <div class="input-group">
@@ -249,29 +272,51 @@
 	  enabled, the track loops back to the beginning and continues playing.
 	</div>
       </div>
+    </div>
 
-      <div class="row border-bottom bg-light">
-	<h3>Haptic (vibration) Options</h3>
+    <div class="container text-left" style="margin-top: 1em;">
+      <div class="row border-bottom border-top bg-light">
+	<div class="col-1">
+	  <div class="form-check form-switch" style="padding-top: 0.5em;">
+	    <input class="form-check-input" type="checkbox" id="show-hide-haptic" onChange="showHideHaptic()" checked>
+	  </div>
+	</div>
+	<div class="col-3">
+	  <h3>Haptic Options</h3>
+	</div>
+	<div class="col-8" style="padding-top: 0.5em;">
+	  <i>Click on the switch at the left to enable/disable haptic
+	  (vibration) ouput.</i>
       </div>
 
+      <div class="row border-bottom" id="haptic-options-disabled">
+	<div class="col-1"></div>
+	<div class="col-11" style="padding: 1em;">
+	  <i>Haptic output is disabled. Click on the switch above to enable
+	    and show all the haptic-output options.</i>
+	</div>
+      </div>
+    </div>
+
+    <div class="container text-left" id="haptic-options">
       <div class="row border-bottom">
 	<div class="col-12">
 	  <ul class="nav nav-tabs" id="myTab" role="tablist">
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#channel1" type="button"
-	      role="tab" aria-controls="channel1" aria-selected="true">Channel 1</button>
+	      role="tab" aria-controls="channel1" aria-selected="true" onclick="selectHapticOutputChannel(1)">Channel 1</button>
 	    </li>
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#channel2" type="button"
-	      role="tab" aria-controls="profile" aria-selected="false">Channel 2</button>
+	      role="tab" aria-controls="profile" aria-selected="false" onclick="selectHapticOutputChannel(2)">Channel 2</button>
 	    </li>
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#channel3" type="button"
-	      role="tab" aria-controls="contact" aria-selected="false">Channel 3</button>
+	      role="tab" aria-controls="contact" aria-selected="false" onclick="selectHapticOutputChannel(3)">Channel 3</button>
 	    </li>
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#channel4" type="button"
-	      role="tab" aria-controls="contact" aria-selected="false">Channel 4</button>
+	      role="tab" aria-controls="contact" aria-selected="false" onclick="selectHapticOutputChannel(4)">Channel 4</button>
 	    </li>
 	  </ul>
 	</div>
@@ -297,51 +342,102 @@
 	</div>
       </div>
 
-      <div class="row border-bottom">
-	<div class="col-1"></div>
-	<div class="col-3 border-end" style="padding-left: 3em;">
-	  <div class="input-group">
-	    <select class="form-select" id="vibration-type" onChange="vibrationModeChanged()">
-	      <option value="">Selection option...</option>
-	      <option value="vibrate">Vibration</option>
-	      <option value="pulses">Pulses</option>
-	      <option value="custom">Custom</option>
-	    </select>
-	  </div>
-	</div>
-	<div class="col-8">
-	  Select the type of vibration:
-	  <ul style="margin-bottom: 0px;">
-	    <li><b>Vibration:</b> Vibrate whenever sensor is touched.</li>
-	    <li><b>Pulses:</b> short pulses of vibration; select duration
-	      and spacing below (when this is selected)</li>
-	    <li><b>Custom:</b> design your own pattern</li>
-	  </ul>
-	  When you choose the vibration type, its options will appear below.
-	</div>
-      </div>
-      
-      <div class="row border-bottom" id="no-vib-options-row">
-	<div class="col-1"></div>
-	<div class="col-3 border-end">
-	  <p style="padding-top: 1em; padding-bottom: 1em; font-style: italic;">Select from menu above to see options.</p>
-	</div>
-	<div class="col-8">
-	  <p style="padding-top: 1em; padding-bottom: 1em; font-style: italic;">Vibration options...</p>
-	</div>
-      </div>
-
       <div class="row border-bottom" id="vib-options-row">
 	<div class="col-1"></div>
 	<div class="col-3 border-end">
-	  <select class="form-select" id="vibration-waveform" onChange="selectVibWaveform()">
-	    <option value="">Select...</option>
-	    <option value="continuous">Continuous vibration</option>
-	    <option value="square-wave">Continuous on/off</option>
-	    <option value="sawtooth-wave">Continuous up/down volume</option>
-	    <option value="single-pulse">Single pulse</option>
-	    <option value="single-pulse-fade">Single pulse with fade-out</option>
-	  </select>
+
+	  <div id="channel-options-1">
+	    <select class="form-select" id="vibration-waveform-1" onChange="selectVibWaveform(1)">
+	      <option value="">Select...</option>
+	      <option value="continuous">Continuous vibration</option>
+	      <option value="square-wave">Continuous on/off</option>
+	      <option value="sawtooth-wave">Continuous up/down volume</option>
+	      <option value="single-pulse">Single pulse</option>
+	      <option value="single-pulse-fade">Single pulse with fade-out</option>
+	      <option value="custom-file">Custom file</option>
+	    </select>
+	    <div class="input-group" id="custom-vib-file-container-1" style="padding-top: 1em">
+	      <div class="input-group-prepend">
+		<label class="input-group-text" for="custom-vib-name-1">
+		  Custom-vibration file:
+		</label>
+	      </div>
+	      <div>
+	      <input type="text" class="form-control" id="custom-vib-name-1" placeholder="<enter file
+  name>" value="">
+	      </div>
+	    </div>
+	  </div>
+
+	  <div id="channel-options-2">
+	    <select class="form-select" id="vibration-waveform-2" onChange="selectVibWaveform(2)">
+	      <option value="">Select...</option>
+	      <option value="continuous">Continuous vibration</option>
+	      <option value="square-wave">Continuous on/off</option>
+	      <option value="sawtooth-wave">Continuous up/down volume</option>
+	      <option value="single-pulse">Single pulse</option>
+	      <option value="single-pulse-fade">Single pulse with fade-out</option>
+	      <option value="custom-file">Custom file</option>
+	    </select>
+	    <div class="input-group" id="custom-vib-file-container-2" style="padding-top: 1em">
+	      <div class="input-group-prepend">
+		<label class="input-group-text" for="custom-vib-name-2">
+		  Custom-vibration file:
+		</label>
+	      </div>
+	      <div>
+	      <input type="text" class="form-control" id="custom-vib-name-2" placeholder="<enter file
+  name>" value="">
+	      </div>
+	    </div>
+	  </div>
+
+	  <div id="channel-options-3">
+	    <select class="form-select" id="vibration-waveform-3" onChange="selectVibWaveform(3)">
+	      <option value="">Select...</option>
+	      <option value="continuous">Continuous vibration</option>
+	      <option value="square-wave">Continuous on/off</option>
+	      <option value="sawtooth-wave">Continuous up/down volume</option>
+	      <option value="single-pulse">Single pulse</option>
+	      <option value="single-pulse-fade">Single pulse with fade-out</option>
+	      <option value="custom-file">Custom file</option>
+	    </select>
+	    <div class="input-group" id="custom-vib-file-container-3" style="padding-top: 1em">
+	      <div class="input-group-prepend">
+		<label class="input-group-text" for="custom-vib-name-3">
+		  Custom-vibration file:
+		</label>
+	      </div>
+	      <div>
+	      <input type="text" class="form-control" id="custom-vib-name-3" placeholder="<enter file
+  name>" value="">
+	      </div>
+	    </div>
+	  </div>
+
+	  <div id="channel-options-4">
+	    <select class="form-select" id="vibration-waveform-4" onChange="selectVibWaveform(4)">
+	      <option value="">Select...</option>
+	      <option value="continuous">Continuous vibration</option>
+	      <option value="square-wave">Continuous on/off</option>
+	      <option value="sawtooth-wave">Continuous up/down volume</option>
+	      <option value="single-pulse">Single pulse</option>
+	      <option value="single-pulse-fade">Single pulse with fade-out</option>
+	      <option value="custom-file">Custom file</option>
+	    </select>
+	    <div class="input-group" id="custom-vib-file-container-4" style="padding-top: 1em">
+	      <div class="input-group-prepend">
+		<label class="input-group-text" for="custom-vib-name-4">
+		  Custom-vibration file:
+		</label>
+	      </div>
+	      <div>
+	      <input type="text" class="form-control" id="custom-vib-name-4" placeholder="<enter file
+  name>" value="">
+	      </div>
+	    </div>
+	  </div>
+		  
 	</div>
 	<div class="col-8">
 	  <div id="straight-line-container">
@@ -359,73 +455,47 @@
 	  <div id="single-pulse-fade-wave-container">
 	    <span id="single-pulse-fade-wave-here"></span> A single pulse of vibration with fade-out
 	  </div>
+	  <div id="custom-file-wave-container">
+	    A custom vibration profile
+	  </div>
+	  <div style="margin-left: 70px;" id="custom-vib-explanation">
+	    A custom vibration profile ("envelope") that you create with
+	    the <a href="tactile-vibration-designer.html" target="_vib">Tactile Vibration
+	      Designer</a> and save to your micro-SD card. Enter the name
+	    of the file above.
+	  </div>
+
 	</div>
       </div>
+    </div>
 
-      <div class="row border-bottom" id="pulse-options-row">
+    <div class="container text-left" style="margin-top: 1em;">
+      <div class="row border-bottom border-top bg-light">
+	<div class="col-1">
+	  <div class="form-check form-switch" style="padding-top: 0.5em;">
+	    <input class="form-check-input" type="checkbox" id="show-hide-advanced" onChange="showHideAdvanced()" unchecked>
+	  </div>
+	</div>
+	<div class="col-3">
+	  <h3>Advanced Options</h3>
+	</div>
+	<div class="col-8" style="padding-top: 0.5em;">
+	  <i>Click on the switch at the left to show/hide advanced options</i>
+	</div>
+      </div>
+    </div>
+
+    <div class="row border-bottom" id="advanced-options-disabled">
 	<div class="col-1"></div>
-	<div class="col-3 border-end">
-	  <div class="input-group">
-	    <div class="input-group-prepend" style="width: 80%;">
-	      <label class="input-group-text" for="pulse-width">
-		Pulse width (msec):
-	      </label>
-	    </div>
-	    <input type="text" class="form-control" id="pulse-width" value="100">
-	  </div>
-	  <div class="input-group">
-	    <div class="input-group-prepend" style="width: 80%;">
-	      <label class="input-group-text" for="pulse-spacing">
-		Pulse spacing (msec):
-	      </label>
-	    </div>
-	    <input type="text" class="form-control" id="pulse-spacing" value="100">
-	  </div>
-	</div>
-	<div class="col-8">
-	  How to shape the pulses:
-	  <ul>
-	    <li><b>Pulse width:</b> How long the vibration is on (milliseconds). E.g. 5 msec is
-	    very short, 500 msec is a 1/2-second-wide pulse</li>
-	    <li><b>Pulse spacing:</b>How long between pulses (milliseconds). E.g. 500 msec is a
-	      pulse every 1/2 second. (Note: spacing must be longer than width.)</li>
-	  </ul>
+	<div class="col-11" style="padding: 1em;">
+	  <i>Advanced options output are hidden. Click on the switch above to 
+	    show advanced options.</i>
 	</div>
       </div>
+    </div>
 
-      <div class="row border-bottom" id="custom-vib-options-row">
-	<div class="col-1"></div>
-	<div class="col-3 border-end">
-	  <div class="input-group">
-	    <div class="input-group-prepend">
-	      <label class="input-group-text" for="custom-vib-name">
-		Custom-vibration file:
-	      </label>
-	    </div>
-	    <div>
-	    <input type="text" class="form-control" id="custom-vib-name" placeholder="<enter file
-name>" value="">
-	    </div>
-	  </div>
-	</div>
-	<div class="col-8">
-	  For custom vibrations, you'll create a data file using the
-	  <a href="tactile-vibration-designer.html">Tactile Vibration Designer</a>, and save the
-	  file to the micro-SD card that's installed on the "audio shield" of your Teensy
-	  microprocessor device. This is the name of that file.
-	</div>
-      </div>
-
-      <div class="row border-bottom bg-light">
-	<div class="col-4" style = "padding-left: 3em; padding-top: 1em; padding-bottom: 0.5em; text-align: left;">
-	  <h3 id="advanced-options-heading" style="paddin-bottom: 0px; display: none">Advanced Options</h3>
-	  <a href="#advanced" class="text-primary text-decoration-underline" onClick="toggleAdvancedOptions();" id="toggle-advanced">xx</a>
-	</div>
-	<div class="col-8">
-	</div>
-      </div>
-
-      <div class="row border-bottom" id="log-level-row">
+    <div class="container text-left" id="advanced-options">
+      <div class="row border-bottom">
 	<div class="col-4 border-end" style="padding-left: 3em;">
 	  <a name="advanced"></a>
 	  <div class="input-group">
@@ -448,7 +518,7 @@ name>" value="">
 
       </div>
 
-      <div class="row border-bottom" id="proximity-multiplier-row">
+      <div class="row border-bottom">
 	<div class="col-4 border-end">
 	  <div class="input-group">
 	    <div class="input-group-prepend" style="width: 80%;">
@@ -526,7 +596,9 @@ name>" value="">
 	</div>
 
       </div>
-      
+    </div>
+
+    <div class="container text-left" style="margin-top: 1em;">
       <div class="row border-bottom bg-light">
 	<h3>Create your sketch...</h3>
       </div>
