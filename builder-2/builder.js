@@ -21,6 +21,7 @@ function createArduinoSketch() {
 	+ "\n"
 	+ "Tactile *t;\n"
 	+ "void setup() {\n"
+	+ "  t = Tactile::setup();\n"
 	+ "\n";
     
     // Log level. This goes first (even though it's near the bottom of the form) because
@@ -29,15 +30,19 @@ function createArduinoSketch() {
     sketch += "  t->setLogLevel(" + logLevel + ");\n";
 
     // Which channels are enabled?
-    var channelsEnabled = [];
-    channelsEnabled.push(!document.getElementById("channel-1-enabled").checked);
-    channelsEnabled.push(!document.getElementById("channel-2-enabled").checked);
-    channelsEnabled.push(!document.getElementById("channel-3-enabled").checked);
-    channelsEnabled.push(!document.getElementById("channel-4-enabled").checked);
+    var channelEnabled = [];
+    channelEnabled.push(document.getElementById("channel-1-enabled").checked);
+    channelEnabled.push(document.getElementById("channel-2-enabled").checked);
+    channelEnabled.push(document.getElementById("channel-3-enabled").checked);
+    channelEnabled.push(document.getElementById("channel-4-enabled").checked);
     for (var i = 1; i <= 4; i++)
     {
-	sketch += "  t->ignoreSensor(" + i + ", " + channelsEnabled[i-1] + ");\n";
+	sketch += "  t->ignoreSensor(" + i + ", " + !channelEnabled[i-1] + ");\n";
     }
+
+    //--------------------------------------------------------------------------------
+    // Input sensors
+    //--------------------------------------------------------------------------------
 
     // touch-or-proximity menu
     var e = document.getElementById("touch-or-proximity-menu");
@@ -58,48 +63,106 @@ function createArduinoSketch() {
     }
     sketch += "  t->setTouchReleaseThresholds(" + touchThreshold + ", " + releaseThreshold + ");\n";
     
-    // If proximity mode is used, Fade-in, fade-out, volume, and touch-to-stop
-    // aren't used.
+    // If proximity mode is used, touch-to-stop isn't used
     if (prox == "touch") {
-
-	// Volume
-	var volume = document.getElementById("volume").value;
-	if (!checkNumber(volume, 0, 100, "Volume")) {return;}
-	sketch += "  t->setVolume(" + volume + ");\n";
-
-	// Fade-in and fade-out
-	var fadeIn  = document.getElementById("fade-in").value;
-	var fadeOut = document.getElementById("fade-out").value;
-	if (   !checkNumber(fadeIn, 0, 100000, "Fade-in")
-	    || !checkNumber(fadeOut, 0, 10000, "Fade-out")) { return; }
-	sketch += "  t->setFadeInTime(" + fadeIn + ");\n";
-	sketch += "  t->setFadeOutTime(" + fadeOut + ");\n";
-
-        // Touch-to-stop mode
 	var touchToStop = document.getElementById("touch-to-stop").checked;
 	sketch += "  t->setTouchToStop(" + touchToStop + ");\n";
     }
 
-    // Multi-track mode
-    var multiTrack = document.getElementById("multi-track").checked;
-    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
 
-    // Continue-track mode
-    var continueTrack = document.getElementById("continue-track").checked;
-    sketch += "  t->setContinueTrackMode(" + continueTrack + ");\n";
+    //--------------------------------------------------------------------------------
+    // Audio, Vibrate, or both?
+    //--------------------------------------------------------------------------------
 
-    // Inactivity timeout
-    var inactivityTimeout = document.getElementById("inactivity-timeout").value;
-    if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
-    sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
+    var useAudioOutput     = document.getElementById("show-hide-audio").checked;
+    var useVibrationOutput = document.getElementById("show-hide-haptic").checked;
+    var outputOption = [];
+    if (useAudioOutput) {
+	outputOption.push("audioOutput");
+    }
+    if (useVibrationOutput) {
+	outputOption.push("vibrationOutput");
+    }
+    for (ch = 1; ch <= 4; ch++) {
+	if (channelEnabled[ch-1]) {
+	    sketch += "  t->setOutputDestination(" + ch + ", " + outputOption.join(", ") + ");\n";
+	}
+    }
 
-    // Random-track mode
-    var randomTrack = document.getElementById("random-track").checked;
-    sketch += "  t->setPlayRandomTrackMode(" + randomTrack + ");\n";
+    //--------------------------------------------------------------------------------
+    // Audio Output control
+    //--------------------------------------------------------------------------------
 
-    // Track looping
-    var trackLooping = document.getElementById("track-looping").checked;
-    sketch += "  t->setLoopMode(" + trackLooping + ");\n";
+    if (useAudioOutput) {
+
+      // If proximity mode is used, Fade-in, fade-out, and volume aren't used.
+      if (prox == "touch") {
+
+	  // Volume
+	  var volume = document.getElementById("volume").value;
+	  if (!checkNumber(volume, 0, 100, "Volume")) {return;}
+	  sketch += "  t->setVolume(" + volume + ");\n";
+
+	  // Fade-in and fade-out
+	  var fadeIn  = document.getElementById("fade-in").value;
+	  var fadeOut = document.getElementById("fade-out").value;
+	  if (   !checkNumber(fadeIn, 0, 100000, "Fade-in")
+	      || !checkNumber(fadeOut, 0, 10000, "Fade-out")) { return; }
+	  sketch += "  t->setFadeInTime(" + fadeIn + ");\n";
+	  sketch += "  t->setFadeOutTime(" + fadeOut + ");\n";
+      }
+
+      // Multi-track mode
+      var multiTrack = document.getElementById("multi-track").checked;
+      sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
+
+      // Continue-track mode
+      var continueTrack = document.getElementById("continue-track").checked;
+      sketch += "  t->setContinueTrackMode(" + continueTrack + ");\n";
+
+      // Inactivity timeout
+      var inactivityTimeout = document.getElementById("inactivity-timeout").value;
+      if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
+      sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
+
+      // Random-track mode
+      var randomTrack = document.getElementById("random-track").checked;
+      sketch += "  t->setPlayRandomTrackMode(" + randomTrack + ");\n";
+
+      // Track looping
+      var trackLooping = document.getElementById("track-looping").checked;
+      sketch += "  t->setLoopMode(" + trackLooping + ");\n";
+    }
+    
+    //--------------------------------------------------------------------------------
+    // Vibration output. Each channel has its own set of options
+    //--------------------------------------------------------------------------------
+
+    if (useVibrationOutput) {
+	for (var channel = 1; channel <= 4; channel++) {
+	    if (channelEnabled[channel-1]) {
+		var e = document.getElementById("vibration-waveform-ch"+channel);
+		vibChoice = e.options[e.selectedIndex].value;
+		if (vibChoice == "custom-file") {
+		    var fileName = document.getElementById("custom-vib-name-ch"+channel).value;
+		    if (!fileName) {
+			alert("Error: Haptic Channel " + channel + ": the 'custom file' choice requires a filename");
+			return;
+		    }
+		    sketch += "  t->setVibrationEnvelopeFile(" + channel + ", \"" + fileName + "\");\n";
+		} else if (vibChoice) {
+		    sketch += "  t->setVibrationEnvelope(" + channel + ", \"" + vibChoice + "\");\n";
+		}
+		var proxControlsSpeed = document.getElementById("proximity-as-speed-ch"+channel).checked;
+		sketch += "  t->setProximityControlsSpeed(" + channel + ", " + proxControlsSpeed + ");\n";
+	    }
+	}
+    }
+
+
+    //--------------------------------------------------------------------------------
+    // Advanced options
+    //--------------------------------------------------------------------------------
 
     // Proximity multiplier
     for (var i = 1; i <= 4; i++) {
@@ -123,7 +186,6 @@ function createArduinoSketch() {
     sketch = sketch
 	+ "}\n"
 	+ "\n"
-	+ "// Don't modify this loop() function.\n"
 	+ "void loop() {\n"
 	+ "  t->loop();\n"
 	+ "}\n"
@@ -148,14 +210,14 @@ function touchModeChanged() {
 }
 
 function selectVibWaveform(channel) {
-    var e = document.getElementById("vibration-waveform-"+channel);
+    var e = document.getElementById("vibration-waveform-ch"+channel);
     var v = e.options[e.selectedIndex].value;
-    var sl = document.getElementById("straight-line-container");
-    var sq = document.getElementById("square-wave-container");
-    var sw = document.getElementById("sawtooth-wave-container");
-    var pw = document.getElementById("single-pulse-wave-container");
-    var pf = document.getElementById("single-pulse-fade-wave-container");
-    var cu = document.getElementById("custom-file-wave-container");
+    var sl = document.getElementById("straight-line-container-ch"+channel);
+    var sq = document.getElementById("square-wave-container-ch"+channel);
+    var sw = document.getElementById("sawtooth-wave-container-ch"+channel);
+    var pw = document.getElementById("single-pulse-wave-container-ch"+channel);
+    var pf = document.getElementById("single-pulse-fade-wave-container-ch"+channel);
+    var cu = document.getElementById("custom-file-wave-container-ch"+channel);
     sl.classList.remove("text-primary");
     sq.classList.remove("text-primary");
     sw.classList.remove("text-primary");
@@ -169,8 +231,8 @@ function selectVibWaveform(channel) {
     else if (v == "single-pulse-fade") { pf.classList.add("text-primary"); }
     else if (v == "custom-file")       { cu.classList.add("text-primary"); }
 
-    var customFileContainer = document.getElementById("custom-vib-file-container-"+channel);
-    var customFileExplanation = document.getElementById("custom-vib-explanation");
+    var customFileContainer = document.getElementById("custom-vib-file-container-ch"+channel);
+    var customFileExplanation = document.getElementById("custom-vib-explanation-ch"+channel);
     if (v == "custom-file") {
 	customFileContainer.style.display = "";
 	customFileExplanation.style.display = "";
@@ -182,11 +244,15 @@ function selectVibWaveform(channel) {
 
 function initializeOnLoad() {
     touchModeChanged();
-    placeImages();
     showHideAudio();
     showHideHaptic();
     showHideAdvanced();
+    duplicateHapticOptions();
+    placeImages();
     selectHapticOutputChannel(1);
+    for (var ch = 1; ch <= 4; ch++) {
+	enableDisableChannel(ch);
+    }
 }
 
 function isNumeric(str) {
@@ -213,11 +279,27 @@ function placeImage(name, where) {
 }
 
 function placeImages() {
-    placeImage("straight-line", "straight-line-here");
-    placeImage("square-wave",   "square-wave-here");
-    placeImage("sawtooth-wave", "sawtooth-wave-here");
-    placeImage("single-pulse-wave", "single-pulse-wave-here");
-    placeImage("single-pulse-fade-wave", "single-pulse-fade-wave-here");
+    for (channel = 1; channel <= 4; channel++) {
+	placeImage("straight-line", "straight-line-here-ch"+channel);
+	placeImage("square-wave",   "square-wave-here-ch"+channel);
+	placeImage("sawtooth-wave", "sawtooth-wave-here-ch"+channel);
+	placeImage("single-pulse-wave", "single-pulse-wave-here-ch"+channel);
+	placeImage("single-pulse-fade-wave", "single-pulse-fade-wave-here-ch"+channel);
+	placeImage("custom-design", "custom-design-here-ch"+channel);
+    }
+}
+
+// Rather than make four copies, the haptic options are only in the HTML once,
+// and are duplicated on the fly, replacing references to channel 1 with references
+// to channels 2-4. Makes changes much simpler.
+function duplicateHapticOptions(channel) {
+    var regexp1 = /-ch\d/g;
+    var regexp2 = /selectVibWaveform\(1\)/g;
+    for (var ch = 2; ch <= 4; ch++) {
+	var html = document.getElementById("vib-options-row-ch1").innerHTML;
+	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "selectVibWaveform("+ch+")");
+	document.getElementById("vib-options-row-ch"+ch).innerHTML = newHtml;
+    }
 }
 
 function showHideAudio() {
@@ -257,8 +339,14 @@ function showHideAdvanced() {
 }
 
 function selectHapticOutputChannel(channel) {
+    // shows one of the four forms for vibrations, hides the other three
     for (var i = 1; i <= 4; i++) {
-	document.getElementById("channel-options-"+i).style.display = (channel == i) ? "" : "none";
+	document.getElementById("vib-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
     }
     selectVibWaveform(channel);
+}
+
+function enableDisableChannel(channel) {
+    var enabled = document.getElementById("channel-" + channel + "-enabled").checked;
+    e = document.getElementById("channel-" + channel + "-tab").disabled = !enabled;
 }
