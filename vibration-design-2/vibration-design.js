@@ -53,15 +53,15 @@ function simulate() {
     var soundLength  = parseFloat(document.getElementById("sound-length").value);
     var msecPerPoint = soundLength * 1000 / numPoints;
     var frequency    = document.getElementById("vibration-frequency").value;
-    var volumeValues = [];
+    var intensityValues = [];
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
-	volumeValues.push(document.getElementById(name).value);
+	intensityValues.push(document.getElementById(name).value);
     }
-    playVibration(frequency, msecPerPoint, volumeValues);
+    playVibration(frequency, msecPerPoint, intensityValues);
 }
 
-async function playVibration(frequency, msecPerPoint, volumeValues) {
+async function playVibration(frequency, msecPerPoint, intensityValues) {
     var context = new AudioContext();
     var o = context.createOscillator();
     o.frequency.value = frequency;
@@ -70,21 +70,21 @@ async function playVibration(frequency, msecPerPoint, volumeValues) {
     o.connect(g);
     g.connect(context.destination);
     var eventTime = context.currentTime;
-    for (var i = 0; i < volumeValues.length; i++) {
-	var volume = volumeValues[i]/100.0;
-	if (volume == 0) {
-	    volume = 0.01;  // zero isn't allowed for exponentialRampToValueAtTime()
+    for (var i = 0; i < intensityValues.length; i++) {
+	var intensity = intensityValues[i]/100.0;
+	if (intensity == 0) {
+	    intensity = 0.01;  // zero isn't allowed for exponentialRampToValueAtTime()
 	}
-	// Uses exponential-ramp-to-value rather than instant volume change
+	// Uses exponential-ramp-to-value rather than instant intensity change
 	// to avoid "click" sounds. 5msec ramp up each change. The second
-	// exponential-ramp-to-value keeps the same volume, so it just determines
+	// exponential-ramp-to-value keeps the same intensity, so it just determines
 	// the time the next one starts.
-	g.gain.exponentialRampToValueAtTime(volume, eventTime+0.005);
+	g.gain.exponentialRampToValueAtTime(intensity, eventTime+0.005);
 	eventTime += msecPerPoint/1000.0;
-	g.gain.exponentialRampToValueAtTime(volume, eventTime);
+	g.gain.exponentialRampToValueAtTime(intensity, eventTime);
     }
     o.start();
-    await new Promise(r => setTimeout(r, msecPerPoint * volumeValues.length));
+    await new Promise(r => setTimeout(r, msecPerPoint * intensityValues.length));
     o.stop();
 }
 
@@ -98,13 +98,13 @@ function writeSoundFile() {
     var numPoints   = parseInt(document.getElementById("number-of-sliders").value);
     var soundLength = parseFloat(document.getElementById("sound-length").value);
     var frequency   = parseInt(document.getElementById("vibration-frequency").value);
-    var volumeValues = [];
+    var intensityValues = [];
 
     var file = "";
     file += "soundLength:" + soundLength + "\n";
     file += "frequency:" + frequency + "\n";
     file += "numPoints:" + numPoints + "\n";
-    file += "volumes:\n";
+    file += "intensities:\n";
     var numPoints   = parseInt(document.getElementById("number-of-sliders").value);
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
@@ -114,41 +114,41 @@ function writeSoundFile() {
 }
 
 function readSoundFile() {
-    var soundLength, msecPerPoint, frequency, volumes;
+    var soundLength, msecPerPoint, frequency, intensities;
     var lines = document.getElementById("vibration-file").value.split("\n"); 
-    var startOfVolumes = 0;
+    var startOfIntensities = 0;
     var i, nameValue;
     for (i = 0; i < lines.length; i++) {
 	nameValue = lines[i].split(":");
 	if      (nameValue[0] == "soundLength" ) { soundLength  = nameValue[1]; }
 	else if (nameValue[0] == "frequency"   ) { frequency    = nameValue[1]; }
 	else if (nameValue[0] == "numPoints"   ) { numPoints    = nameValue[1]; }
-	else if (nameValue[0] == "volumes") {
-	    volumes = [];
-	    startOfVolumes = i+1;
+	else if (nameValue[0] == "intensities") {
+	    intensities = [];
+	    startOfIntensities = i+1;
 	    break;
 	} else {
 	    alert("Error in sound file: unknown element '" + nameValue[0] + "'");
 	    return;
 	}
     }
-    if (typeof(volume) == undefined || startOfVolumes == 0) {
-	alert("Error in sound file: can't find 'volumes' values");
+    if (typeof(intensity) == undefined || startOfIntensities == 0) {
+	alert("Error in sound file: can't find 'intensities' values");
 	return;
     }
     var oneWarning = false;
-    for (i = startOfVolumes; i < lines.length; i++) {
+    for (i = startOfIntensities; i < lines.length; i++) {
 	if (lines[i].length == 0) {
 	    break;
 	}
 	if (isNaN(parseInt(lines[i]))) {
 	    if (!oneWarning) {
-		alert("Error: volume values must be numbers: '" + lines[i] + "' isn't valid");
+		alert("Error: intensity values must be numbers: '" + lines[i] + "' isn't valid");
 		oneWarning = true;
 	    }
 	    lines[i] = "0";
 	}
-	volumes[i-startOfVolumes] = lines[i];
+	intensities[i-startOfIntensities] = lines[i];
     }
 
     if (typeof(soundLength)  == undefined) {alert("Error in sound file: missing 'soundLength'");  return;}
@@ -157,20 +157,20 @@ function readSoundFile() {
     if (isNaN(parseFloat(soundLength))) {alert("Error in sound file: 'soundLength' must be a number"); return;}
     if (isNaN(parseFloat(frequency)))   {alert("Error in sound file: 'frequency' must be a number");   return;}
     if (isNaN(parseFloat(numPoints)))   {alert("Error in sound file: 'numPoints' must be a number");   return;}
-    if (numPoints != volumes.length) {
+    if (numPoints != intensities.length) {
 	alert("Warning: error in sound file: 'numPoints' (" + numPoints +
-	      "\ndoesn't match actual number of volume values (" + volumes.length +
-	      ")\nusing '" + volumes.length + "'");
+	      "\ndoesn't match actual number of intensity values (" + intensities.length +
+	      ")\nusing '" + intensities.length + "'");
     }
 
-    var numPoints = volumes.length;
+    var numPoints = intensities.length;
     document.getElementById("number-of-sliders").value = numPoints;
     document.getElementById("sound-length").value = soundLength;
     document.getElementById("vibration-frequency").value = frequency;
     changeNumberOfSliders();
     for (var i = 1; i <= numPoints; i++) {
 	var name = "slider" + i;
-	document.getElementById(name).value = volumes[i-1];
+	document.getElementById(name).value = intensities[i-1];
     }
     updateVibrationFrequency();
 }
