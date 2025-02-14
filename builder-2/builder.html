@@ -326,9 +326,7 @@
 	</div>
       </div>
       <div class="row border-bottom">
-	<div class="col-1"></div>
-	<div class="col-11">
-	  
+	<div class="col-12">
 	  <div class="tab-content" id="myTabContent">
 	    <div class="tab-pane fade show active" id="channel1" role="tabpanel" aria-labelledby="channel-1-tab">
 	      <b>Configuring Channel 1</b>
@@ -351,6 +349,7 @@
 	<div class="row border-bottom">
 	  <div class="col-1"></div>
 	  <div class="col-3 border-end">
+	    <div class="fw-bold fs-5">Select vibration shape:</div>
 	    <select class="form-select" id="vibration-waveform-ch1" onChange="selectVibWaveform(1)">
 	      <option value="">Select...</option>
 	      <option value="continuous">Continuous vibration</option>
@@ -402,16 +401,59 @@
 	<div class="row border-bottom">
 	  <div class="col-1"></div>
 	  <div class="col-3 border-end">
-	    <div class="form-check form-switch">
-	      <input class="form-check-input" type="checkbox" id="proximity-as-speed-ch1" unchecked>
-	      <label class="form-check-label" for="proximity-as-speed-ch1">Proximity controls speed</label>
+
+	    <div class="fw-bold fs-5">Sensor-Proximity action:</div>
+	    <div class="form-check">
+	      <input class="form-check-input" type="radio"
+		     name="useProximityForVib-ch1" id="use-proximity-for-vib-1-ch1" checked
+		     onchange="proximityVibActionChanged(1)">
+	      <label class="form-check-label" for="use-proximity-for-vib-1-ch1">
+		Vibration fixed
+	      </label>
 	    </div>
+	    <div class="form-check">
+	      <input class="form-check-input" type="radio"
+		     name="useProximityForVib-ch1" id="use-proximity-for-vib-2-ch1"
+		     onchange="proximityVibActionChanged(1)">
+
+	      <label class="form-check-label" for="use-proximity-for-vib-2-ch1">
+		Proximity controls intensity
+	      </label>
+	    </div>
+	    <div class="form-check">
+	      <input class="form-check-input" type="radio"
+		     name="useProximityForVib-ch1" id="use-proximity-for-vib-3-ch1"
+		     onchange="proximityVibActionChanged(1)">
+	      <label class="form-check-label" for="use-proximity-for-vib-3-ch1">
+		Proximity controls speed
+	      </label>
+	    </div>
+
+	    <div class="input-group" id="proximity-speed-group-ch1" style="display:none;">
+	      <div class="input-group-prepend" style="width: 80%;">
+		<label class="input-group-text" for="proximity-speed-ch1" id="proximity-speed-label-ch1">
+		  Speedup: xx%
+		</label>
+	      </div>
+	      <input type="range" style="width:90%" value="100" step="10"
+		     min="-90" max="1000" id="proximity-speed-ch1" oninput="updateProximityAsSpeedStrength(1)">
+	    </div>
+
 	  </div>
 	  <div class="col-8">
-	    If "Proximity Mode" is selected above, as your hand gets near the sensor it's amplitude
-	    will increase (stronger vibration). If "Proximity controls speed" is selected, then as
-	    your hand gets near the sensor, the duration of each cycle of vibrations will be shortened,
-	    to a maximum of 1/10th the original duration.
+	    Controls how "proximity" (of your hand to a sensor) affects the vibration:
+	    <ul>
+	      <li><b>Vibration fixed:</b> Proximity only determines on/off; the vibration's intensity and speed are
+		fixed.</li>
+	      <li><b>Proximity controls intensity:</b> As proximity decreases (your hand gets closer to the sensor),
+		the intensity of vibration increases.</li>
+	      <li><b>Proximity controls speed:</b> As proximity decreases (your hand gets closer to the sensor),
+		the speed of the vibration pattern increases. For this option, you'll also select a "speedup"
+		factor. For example, if you're using a vibration pulses that are normally one second apart with a
+		speedup of 100%, then when proximity gets to zero (your hand touches the sensor), the pulses will be
+		twice as fast, or 1/2 second apart.
+	      </li>
+	    </ul>
 	  </div>
 	</div>
 

@@ -141,6 +141,8 @@ function createArduinoSketch() {
     if (useVibrationOutput) {
 	for (var channel = 1; channel <= 4; channel++) {
 	    if (channelEnabled[channel-1]) {
+
+		// Selected envelope or envelope file
 		var e = document.getElementById("vibration-waveform-ch"+channel);
 		vibChoice = e.options[e.selectedIndex].value;
 		if (vibChoice == "custom-file") {
@@ -153,8 +155,17 @@ function createArduinoSketch() {
 		} else if (vibChoice) {
 		    sketch += "  t->setVibrationEnvelope(" + channel + ", \"" + vibChoice + "\");\n";
 		}
-		var proxControlsSpeed = document.getElementById("proximity-as-speed-ch"+channel).checked;
-		sketch += "  t->setProximityControlsSpeed(" + channel + ", " + proxControlsSpeed + ");\n";
+
+		// What to do with proximity?
+		//   Radio button 1: nothing, 2: intensity, 3: speed
+		if (document.getElementById("use-proximity-for-vib-2-ch"+channel).checked) {
+		    sketch += "  t->useProximityAsIntensity(" + channel + ", true);\n";
+		}
+		if (document.getElementById("use-proximity-for-vib-3-ch"+channel).checked) {
+		    var multiplier = document.getElementById("proximity-speed-ch" + channel).value;
+		    sketch += "  t->useProximityAsSpeed(" + channel + ", true, " + multiplier + ");\n";
+		}
+
 	    }
 	}
     }
@@ -252,6 +263,8 @@ function initializeOnLoad() {
     selectHapticOutputChannel(1);
     for (var ch = 1; ch <= 4; ch++) {
 	enableDisableChannel(ch);
+	proximityVibActionChanged(ch);
+	updateProximityAsSpeedStrength(ch);
     }
 }
 
@@ -294,10 +307,10 @@ function placeImages() {
 // to channels 2-4. Makes changes much simpler.
 function duplicateHapticOptions(channel) {
     var regexp1 = /-ch\d/g;
-    var regexp2 = /selectVibWaveform\(1\)/g;
+    var regexp2 = /([a-z]+)\(1\)/gi;
     for (var ch = 2; ch <= 4; ch++) {
 	var html = document.getElementById("vib-options-row-ch1").innerHTML;
-	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "selectVibWaveform("+ch+")");
+	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
 	document.getElementById("vib-options-row-ch"+ch).innerHTML = newHtml;
     }
 }
@@ -349,4 +362,16 @@ function selectHapticOutputChannel(channel) {
 function enableDisableChannel(channel) {
     var enabled = document.getElementById("channel-" + channel + "-enabled").checked;
     e = document.getElementById("channel-" + channel + "-tab").disabled = !enabled;
+}
+
+function updateProximityAsSpeedStrength(channel) {
+    var freq = document.getElementById("proximity-speed-ch"+channel).value;
+    var label = document.getElementById("proximity-speed-label-ch"+channel);
+    label.innerHTML = "Speedup: " + freq + "%";
+}
+
+function proximityVibActionChanged(channel) {
+    var checked = document.getElementById("use-proximity-for-vib-3-ch"+channel).checked;
+    e = document.getElementById("proximity-speed-group-ch" + channel);
+    e.style.display = checked ? "" : "none";
 }
