@@ -156,16 +156,27 @@ function createArduinoSketch() {
 		    sketch += "  t->setVibrationEnvelope(" + channel + ", \"" + vibChoice + "\");\n";
 		}
 
-		// What to do with proximity?
-		//   Radio button 1: nothing, 2: intensity, 3: speed
-		if (document.getElementById("use-proximity-for-vib-2-ch"+channel).checked) {
-		    sketch += "  t->useProximityAsIntensity(" + channel + ", true);\n";
-		}
-		if (document.getElementById("use-proximity-for-vib-3-ch"+channel).checked) {
-		    var multiplier = document.getElementById("proximity-speed-ch" + channel).value;
-		    sketch += "  t->useProximityAsSpeed(" + channel + ", true, " + multiplier + ");\n";
+		// Vibrator type, and if linear, get the frequency
+		var vibType = document.getElementById("vibrator-type-ch"+channel).value;
+		if (vibType == "motor") {
+		    sketch += "  t->setVibratorType(" + channel + ", motorVibrator);\n";
+		} else {
+		    sketch += "  t->setVibratorType(" + channel + ", linearVibrator);\n";
+		    var vibFrequency = document.getElementById("vibrator-frequency-ch"+channel).value;
+		    sketch += "  t->setVibrationFrequency(" + channel + ", " + vibFrequency + ");\n";
 		}
 
+		// What to do with proximity?
+		if (prox == "proximity") {
+		    //   Radio button 1: nothing, 2: intensity, 3: speed
+		    if (document.getElementById("use-proximity-for-vib-2-ch"+channel).checked) {
+			sketch += "  t->useProximityAsIntensity(" + channel + ", true);\n";
+		    }
+		    if (document.getElementById("use-proximity-for-vib-3-ch"+channel).checked) {
+			var multiplier = document.getElementById("proximity-speed-ch" + channel).value;
+			sketch += "  t->useProximityAsSpeed(" + channel + ", true, " + multiplier + ");\n";
+		    }
+		}
 	    }
 	}
     }
@@ -209,14 +220,20 @@ function touchModeChanged() {
     var frow = document.getElementById("fade-in-out-row");
     var vrow = document.getElementById("volume-row");
     var trow = document.getElementById("touch-to-stop-row");
+    var vediv = document.getElementById("vib-proximity-enabled");
+    var vddiv = document.getElementById("vib-proximity-disabled");
     if (t == "proximity") {
 	frow.style.display = "none";
 	vrow.style.display = "none";
 	trow.style.display = "none";
+	vddiv.style.display = "none";
+	vediv.style.display = "";
     } else {
 	frow.style.display = "";
 	vrow.style.display = "";
 	trow.style.display = "";
+	vddiv.style.display = "";
+	vediv.style.display = "none";
     }
 }
 
@@ -265,6 +282,7 @@ function initializeOnLoad() {
 	enableDisableChannel(ch);
 	proximityVibActionChanged(ch);
 	updateProximityAsSpeedStrength(ch);
+	updateVibrationFrequency(ch);
     }
 }
 
@@ -299,6 +317,7 @@ function placeImages() {
 	placeImage("single-pulse-wave", "single-pulse-wave-here-ch"+channel);
 	placeImage("single-pulse-fade-wave", "single-pulse-fade-wave-here-ch"+channel);
 	placeImage("custom-design", "custom-design-here-ch"+channel);
+	placeImage("vibrator-types", "vibrator-types-here-ch"+channel);
     }
 }
 
@@ -365,13 +384,25 @@ function enableDisableChannel(channel) {
 }
 
 function updateProximityAsSpeedStrength(channel) {
-    var freq = document.getElementById("proximity-speed-ch"+channel).value;
+    var speedup = document.getElementById("proximity-speed-ch"+channel).value;
     var label = document.getElementById("proximity-speed-label-ch"+channel);
-    label.innerHTML = "Speedup: " + freq + "%";
+    label.innerHTML = "Speedup: " + speedup + "%";
 }
 
 function proximityVibActionChanged(channel) {
     var checked = document.getElementById("use-proximity-for-vib-3-ch"+channel).checked;
     e = document.getElementById("proximity-speed-group-ch" + channel);
     e.style.display = checked ? "" : "none";
+}
+
+function selectVibratorType(channel) {
+    var type = document.getElementById("vibrator-type-ch"+channel).value;
+    var e = document.getElementById("vibrator-frequency-group-ch"+channel);
+    e.style.display = (type == "linear") ? "" : "none";
+}
+
+function updateVibrationFrequency(channel) {
+    var freq = document.getElementById("vibrator-frequency-ch"+channel).value;
+    var label = document.getElementById("vibrator-frequency-label-ch"+channel);
+    label.innerHTML = "Frequency: " + freq + " Hz";
 }
