@@ -444,7 +444,7 @@
 	  <div class="col-3 border-end">
 
 	    <div class="fw-bold fs-5">Sensor-Proximity action:</div>
-	    <div id="vib-proximity-enabled">
+	    <div id="vib-proximity-enabled-ch1">
 	      <div class="form-check">
 		<input class="form-check-input" type="radio"
 		       name="useProximityForVib-ch1" id="use-proximity-for-vib-1-ch1" checked
@@ -481,7 +481,7 @@
 		       min="-90" max="1000" id="proximity-speed-ch1" oninput="updateProximityAsSpeedStrength(1)">
 	      </div>
 	    </div>
-	    <div class="text-secondary font-italic" id="vib-proximity-disabled">
+	    <div class="text-secondary font-italic" id="vib-proximity-disabled-ch1">
 	      Proximity is not enabled. To use this feature, select "Proximity Mode" in the
 	      Sensor Options above.
 	    </div>
@@ -505,14 +505,14 @@
 	</div>
 	
 	<!-- -------------------- End row of vibration options, gets duplicated 3x by JavaScript ---------- -->
+      </div>
 
-	<!-- Placeholders, content gets replace by copies of vibration options above. -->
-	<div class="row border-bottom" id="vib-options-row-ch2">Vib Options Channel 2 go here</div>
-	<div class="row border-bottom" id="vib-options-row-ch3">Vib Options Channel 3 go here</div>
-	<div class="row border-bottom" id="vib-options-row-ch4">Vib Options Channel 4 go here</div>
-      </div>	<!-- end of "haptic-options-B" section -->
+      <!-- Placeholders, content gets replace by copies of vibration options above. -->
+      <div class="container" id="vib-options-row-ch2">Vib Options Channel 2 go here</div>
+      <div class="container" id="vib-options-row-ch3">Vib Options Channel 3 go here</div>
+      <div class="container" id="vib-options-row-ch4">Vib Options Channel 4 go here</div>
       
-    </div>
+    </div>	<!-- end of "haptic-options-B" section -->
 
     <!-- ---------------------------------------------------------------------- -->
 

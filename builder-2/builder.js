@@ -220,20 +220,25 @@ function touchModeChanged() {
     var frow = document.getElementById("fade-in-out-row");
     var vrow = document.getElementById("volume-row");
     var trow = document.getElementById("touch-to-stop-row");
-    var vediv = document.getElementById("vib-proximity-enabled");
-    var vddiv = document.getElementById("vib-proximity-disabled");
     if (t == "proximity") {
 	frow.style.display = "none";
 	vrow.style.display = "none";
 	trow.style.display = "none";
-	vddiv.style.display = "none";
-	vediv.style.display = "";
     } else {
 	frow.style.display = "";
 	vrow.style.display = "";
 	trow.style.display = "";
-	vddiv.style.display = "";
-	vediv.style.display = "none";
+    }
+    for (var i = 1; i <= 4; i++) {
+	var vediv = document.getElementById("vib-proximity-enabled-ch"+i);
+	var vddiv = document.getElementById("vib-proximity-disabled-ch"+i);
+	if (t == "proximity") {
+	    vddiv.style.display = "none";
+	    vediv.style.display = "";
+	} else {
+	    vddiv.style.display = "";
+	    vediv.style.display = "none";
+	}
     }
 }
 
@@ -271,11 +276,11 @@ function selectVibWaveform(channel) {
 }
 
 function initializeOnLoad() {
+    duplicateHapticOptions();
     touchModeChanged();
     showHideAudio();
     showHideHaptic();
     showHideAdvanced();
-    duplicateHapticOptions();
     placeImages();
     selectHapticOutputChannel(1);
     for (var ch = 1; ch <= 4; ch++) {
