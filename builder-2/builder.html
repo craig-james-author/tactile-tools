@@ -76,7 +76,7 @@
 	    be hidden when "Proximity mode" is selected.</i>
 	</div>
       </div>
-
+      
       <div class="row border-bottom">
 	<div class="col-4 border-end">
 	  <div class="input-group">
@@ -121,8 +121,8 @@
 	</div>
 	<div class="col-8" style="padding-top: 0.5em;">
 	  <i>Click on the switch at the left to enable/disable audio ouput.</i>
+	</div>
       </div>
-
       <div class="row border-bottom" id="audio-options-disabled">
 	<div class="col-1"></div>
 	<div class="col-11" style="padding: 1em;">
@@ -176,10 +176,10 @@
 	  and/or fade-out time, then the track's volume fades in and/or out for
 	  the specified time (in milliseconds, e.g.  1500 is 1.5
 	  seconds). <i>(Note: this is hidden when "Proximity mode" is selected
-	  above.)</i>
+	    above.)</i>
 	</div>
       </div>
-
+      
       <div class="row border-bottom" id="touch-to-stop-row">
 	<div class="col-4 border-end" style="padding-left: 3em;">
 	  <div class="form-check form-switch" style="padding-top: 1em;">
@@ -244,7 +244,7 @@
 	  no timeout.
 	</div>
       </div>
-
+      
       <div class="row border-bottom">
 	<div class="col-4 border-end" style="padding-left: 3em;">
 	  <div class="form-check form-switch" style="padding-top: 1em;">
@@ -276,7 +276,7 @@
 	  enabled, the track loops back to the beginning and continues playing.
 	</div>
       </div>
-    </div>
+    </div> <!-- end of audio options -->
 
     <div class="container text-left" style="margin-top: 1em;">
       <div class="row border-bottom border-top bg-light">
@@ -290,9 +290,10 @@
 	</div>
 	<div class="col-8" style="padding-top: 0.5em;">
 	  <i>Click on the switch at the left to enable/disable haptic
-	  (vibration) ouput.</i>
+	    (vibration) ouput.</i>
+	</div>
       </div>
-
+      
       <div class="row border-bottom" id="haptic-options-disabled">
 	<div class="col-1"></div>
 	<div class="col-11" style="padding: 1em;">
@@ -301,26 +302,26 @@
 	</div>
       </div>
     </div>
-
-    <div class="container text-left" id="haptic-options">
+    
+    <div class="container text-left" id="haptic-options-A">
       <div class="row border-bottom">
 	<div class="col-12">
 	  <ul class="nav nav-tabs" id="myTab" role="tablist">
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link active" id="channel-1-tab" data-bs-toggle="tab" data-bs-target="#channel1" type="button"
-	      role="tab" aria-controls="channel1" aria-selected="true" onclick="selectHapticOutputChannel(1)">Channel 1</button>
+		      role="tab" aria-controls="channel1" aria-selected="true" onclick="selectHapticOutputChannel(1)">Channel 1</button>
 	    </li>
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link" id="channel-2-tab" data-bs-toggle="tab" data-bs-target="#channel2" type="button"
-	      role="tab" aria-controls="profile" aria-selected="false" onclick="selectHapticOutputChannel(2)">Channel 2</button>
+		      role="tab" aria-controls="profile" aria-selected="false" onclick="selectHapticOutputChannel(2)">Channel 2</button>
 	    </li>
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link" id="channel-3-tab" data-bs-toggle="tab" data-bs-target="#channel3" type="button"
-	      role="tab" aria-controls="contact" aria-selected="false" onclick="selectHapticOutputChannel(3)">Channel 3</button>
+		      role="tab" aria-controls="contact" aria-selected="false" onclick="selectHapticOutputChannel(3)">Channel 3</button>
 	    </li>
 	    <li class="nav-item" role="presentation">
 	      <button class="nav-link" id="channel-4-tab" data-bs-toggle="tab" data-bs-target="#channel4" type="button"
-	      role="tab" aria-controls="contact" aria-selected="false" onclick="selectHapticOutputChannel(4)">Channel 4</button>
+		      role="tab" aria-controls="contact" aria-selected="false" onclick="selectHapticOutputChannel(4)">Channel 4</button>
 	    </li>
 	  </ul>
 	</div>
@@ -343,9 +344,11 @@
 	  </div>
 	</div>
       </div>
+    </div>
 
-      <!-- -------------------- One row of vibration options, gets duplicated 3x by JavaScript ---------- -->
-      <div id="vib-options-row-ch1">
+    <!-- -------------------- One row of vibration options, gets duplicated 3x by JavaScript ---------- -->
+    <div id="haptic-options-B">
+      <div class="container" id="vib-options-row-ch1">
 	<div class="row border-bottom">
 	  <div class="col-1"></div>
 	  <div class="col-3 border-end">
@@ -378,7 +381,7 @@
 		    <li><b>Linear vibrators</b> are like a small speaker, but without the speaker cone. They
 		      usually have a resonant frequency (e.g. 150 Hz) where they operate best, and should be
 		      driven by an AC voltage at or near that frequency.</li>
-		    </ul>
+		  </ul>
 		</div>
 	      </div>
 	    </div>
@@ -404,8 +407,8 @@
 		</label>
 	      </div>
 	      <div>
-	      <input type="text" class="form-control" id="custom-vib-name-ch1" placeholder="<enter file
-  name>" value="">
+		<input type="text" class="form-control" id="custom-vib-name-ch1" placeholder="<enter file
+											      name>" value="">
 	      </div>
 	    </div>
 	  </div>
@@ -454,7 +457,7 @@
 		<input class="form-check-input" type="radio"
 		       name="useProximityForVib-ch1" id="use-proximity-for-vib-2-ch1"
 		       onchange="proximityVibActionChanged(1)">
-		
+
 		<label class="form-check-label" for="use-proximity-for-vib-2-ch1">
 		  Proximity controls intensity
 		</label>
@@ -500,19 +503,18 @@
 	    </ul>
 	  </div>
 	</div>
+	
+	<!-- -------------------- End row of vibration options, gets duplicated 3x by JavaScript ---------- -->
 
-      </div>
-      <!-- -------------------- End row of vibration options, gets duplicated 3x by JavaScript ---------- -->
-
-      <!-- Placeholders, content gets replace by copies of vibration options above. -->
-      <div class="row border-bottom" id="vib-options-row-ch2">Vib Options Channel 2 go here</div>
-      <div class="row border-bottom" id="vib-options-row-ch3">Vib Options Channel 3 go here</div>
-      <div class="row border-bottom" id="vib-options-row-ch4">Vib Options Channel 4 go here</div>
-
+	<!-- Placeholders, content gets replace by copies of vibration options above. -->
+	<div class="row border-bottom" id="vib-options-row-ch2">Vib Options Channel 2 go here</div>
+	<div class="row border-bottom" id="vib-options-row-ch3">Vib Options Channel 3 go here</div>
+	<div class="row border-bottom" id="vib-options-row-ch4">Vib Options Channel 4 go here</div>
+      </div>	<!-- end of "haptic-options-B" section -->
+      
     </div>
 
-    
-<!-- ---------------------------------------------------------------------- -->
+    <!-- ---------------------------------------------------------------------- -->
 
     <div class="container text-left" style="margin-top: 1em;">
       <div class="row border-bottom border-top bg-light">
@@ -529,16 +531,15 @@
 	</div>
       </div>
     </div>
-
+    
     <div class="row border-bottom" id="advanced-options-disabled">
-	<div class="col-1"></div>
-	<div class="col-11" style="padding: 1em;">
-	  <i>Advanced options output are hidden. Click on the switch above to 
-	    show advanced options.</i>
-	</div>
+      <div class="col-1"></div>
+      <div class="col-11" style="padding: 1em;">
+	<i>Advanced options output are hidden. Click on the switch above to 
+	  show advanced options.</i>
       </div>
     </div>
-
+    
     <div class="container text-left" id="advanced-options">
       <div class="row border-bottom">
 	<div class="col-4 border-end" style="padding-left: 3em;">
@@ -598,7 +599,7 @@
 	    <input type="text" class="form-control" id="proximity-multiplier-4" value="1.0">
 	  </div>
 	</div>
-	  
+	
 	<div class="col-8">
 	  <p><i>NOTE: THIS FEATURE IS EXPERIMENTAL, and may change or be removed
 	  in future versions.</i></p>
@@ -630,7 +631,7 @@
 	    <input type="text" class="form-control" id="averaging" value="200">
 	  </div>
 	</div>
-
+	
 	<div class="col-8">
 	  You probably don't need to modify this. This is the number of sensor
 	  readings that are averaged together to get the sensor's value. Higher
@@ -642,7 +643,7 @@
 
       </div>
     </div>
-
+    
     <div class="container text-left" style="margin-top: 1em;">
       <div class="row border-bottom bg-light">
 	<h3>Create your sketch...</h3>
@@ -677,7 +678,7 @@
 	    </div>
 	  </div>
 	</div>
-
+	
       </div>
 
       <div class="row" style="padding-top: 1em;">
@@ -702,6 +703,7 @@
     
   </body>
 </html>
+
 <div style="display:none" id="square-wave">
   <img src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQEAlgCWAAD/4QCgRXhpZgAATU0AKgAAAAgABQEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAWodpAAQAAAABAAAAbgAAAAAAAACWAAAAAQAAAJYAAAABMjAyNTowMjowMyAxMzoyMzozNgAAA6ABAAMAAAABAAEAAKACAAMAAAABAEAAAKADAAMAAAABABAAAAAAAAD/4QtDaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/PiA8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjUuMCI+IDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+IDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNS0wMi0wM1QxMzoyMzozNi0wODowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNS0wMi0wM1QxMzoyMzozNi0wODowMCI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InByb2R1Y2VkIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZmZpbml0eSBEZXNpZ25lciAxLjkuMyIgc3RFdnQ6d2hlbj0iMjAyNS0wMi0wM1QxMzoyMzozNi0wODowMCIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0idyI/Pv/tACxQaG90b3Nob3AgMy4wADhCSU0EJQAAAAAAENQdjNmPALIE6YAJmOz4Qn7/4gJkSUNDX1BST0ZJTEUAAQEAAAJUbGNtcwQwAABtbnRyUkdCIFhZWiAH6QACAAMAFQASABphY3NwQVBQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAtkZXNjAAABCAAAAD5jcHJ0AAABSAAAAEx3dHB0AAABlAAAABRjaGFkAAABqAAAACxyWFlaAAAB1AAAABRiWFlaAAAB6AAAABRnWFlaAAAB/AAAABRyVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaHJtAAACMAAAACRtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACIAAAAcAHMAUgBHAEIAIABJAEUAQwA2ADEAOQA2ADYALQAyAC4AMQAAbWx1YwAAAAAAAAABAAAADGVuVVMAAAAwAAAAHABOAG8AIABjAG8AcAB5AHIAaQBnAGgAdAAsACAAdQBzAGUAIABmAHIAZQBlAGwAeVhZWiAAAAAAAAD21gABAAAAANMtc2YzMgAAAAAAAQxCAAAF3v//8yUAAAeTAAD9kP//+6H///2iAAAD3AAAwG5YWVogAAAAAAAAb6AAADj1AAADkFhZWiAAAAAAAAAknwAAD4QAALbDWFlaIAAAAAAAAGKXAAC3hwAAGNlwYXJhAAAAAAADAAAAAmZmAADypwAADVkAABPQAAAKW2Nocm0AAAAAAAMAAAAAo9cAAFR7AABMzQAAmZoAACZmAAAPXP/bAEMAEAsMDgwKEA4NDhIREBMYKBoYFhYYMSMlHSg6Mz08OTM4N0BIXE5ARFdFNzhQbVFXX2JnaGc+TXF5cGR4XGVnY//bAEMBERISGBUYLxoaL2NCOEJjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY//AABEIABAAQAMBIgACEQEDEQH/xAAaAAEAAgMBAAAAAAAAAAAAAAAFAwYAAQIE/8QAKRAAAgICAgIBAAsAAAAAAAAAAQIDBAURAAYSITETFEFRYXGBkbHB4f/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCqdYowZLsFSpaBMMhbyAOidKT8/pxanJ1m3k4aQw1hWlmWIMbJ9bOt8M6nagpdkp2LMgjhRm8nb4G1I/vnnxViKHsNSzI/jClpHZj9ihgd8DLdOKHsU1FPL6FLbRD378Q+v447lpOtYvJz0mwcshhbx8xbYb9fdzqzi8ZPnJb47DSCyWTMEIOwC29cF7RYht9jvT15FkieTauvwfQ4Ena6FbHZpoKaGOExo4UsW1sb+TxXIjr+HWlDNhGtSS1Y5mk+tumyw9+h+XJM3VxGavLcXPVoPKJF8GjYkaGuF9vsVZ79RadlLCQ044jIg9Ejf+cDfZqlCKtjLePqmqluFnaMyF9EHXyeActkqYnLYXFRzZmKpLViZHR4mY7J/DgWVpU6Txinko7wYEsUjK+P78D/2Q==">
 </div>

@@ -348,13 +348,16 @@ function showHideAudio() {
 
 function showHideHaptic() {
     var hapticHiddenDiv = document.getElementById("haptic-options-disabled");
-    var hapticShownDiv  = document.getElementById("haptic-options");
+    var hapticShownDivA = document.getElementById("haptic-options-A");
+    var hapticShownDivB = document.getElementById("haptic-options-B");
     if (document.getElementById('show-hide-haptic').checked) {
 	hapticHiddenDiv.style.display = "none";
-	hapticShownDiv.style.display = "";
+	hapticShownDivA.style.display = "";
+	hapticShownDivB.style.display = "";
     } else {
 	hapticHiddenDiv.style.display = "";
-	hapticShownDiv.style.display = "none";
+	hapticShownDivA.style.display = "none";
+	hapticShownDivB.style.display = "none";
     }
 }
 
