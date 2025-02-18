@@ -214,12 +214,12 @@ function createArduinoSketch() {
     document.getElementById("sketch").innerHTML = sketch;
 }
 
-function touchModeChanged() {
-    var e = document.getElementById("touch-or-proximity-menu");
+function touchModeChanged(channel) {
+    var e = document.getElementById("touch-or-proximity-menu-ch"+channel);
     var t = e.options[e.selectedIndex].value;
-    var frow = document.getElementById("fade-in-out-row");
-    var vrow = document.getElementById("volume-row");
-    var trow = document.getElementById("touch-to-stop-row");
+    var frow = document.getElementById("fade-in-out-row-ch"+channel);
+    var vrow = document.getElementById("volume-row-ch"+channel);
+    var trow = document.getElementById("touch-to-stop-row-ch"+channel);
     if (t == "proximity") {
 	frow.style.display = "none";
 	vrow.style.display = "none";
@@ -229,16 +229,14 @@ function touchModeChanged() {
 	vrow.style.display = "";
 	trow.style.display = "";
     }
-    for (var i = 1; i <= 4; i++) {
-	var vediv = document.getElementById("vib-proximity-enabled-ch"+i);
-	var vddiv = document.getElementById("vib-proximity-disabled-ch"+i);
-	if (t == "proximity") {
-	    vddiv.style.display = "none";
-	    vediv.style.display = "";
-	} else {
-	    vddiv.style.display = "";
-	    vediv.style.display = "none";
-	}
+    var vediv = document.getElementById("vib-proximity-enabled-ch"+channel);
+    var vddiv = document.getElementById("vib-proximity-disabled-ch"+channel);
+    if (t == "proximity") {
+	vddiv.style.display = "none";
+	vediv.style.display = "";
+    } else {
+	vddiv.style.display = "";
+	vediv.style.display = "none";
     }
 }
 
@@ -276,13 +274,15 @@ function selectVibWaveform(channel) {
 }
 
 function initializeOnLoad() {
-    duplicateHapticOptions();
-    touchModeChanged();
+    duplicateOptions();
+    for (var ch = 1; ch <= 4; ch++) {
+	touchModeChanged(ch);
+    }
     showHideAudio();
     showHideHaptic();
     showHideAdvanced();
     placeImages();
-    selectHapticOutputChannel(1);
+    selectChannel(1);
     for (var ch = 1; ch <= 4; ch++) {
 	enableDisableChannel(ch);
 	proximityVibActionChanged(ch);
@@ -326,16 +326,27 @@ function placeImages() {
     }
 }
 
-// Rather than make four copies, the haptic options are only in the HTML once,
-// and are duplicated on the fly, replacing references to channel 1 with references
-// to channels 2-4. Makes changes much simpler.
-function duplicateHapticOptions(channel) {
+// Rather than make four copies, the sensor, audio, and haptic options are only in the HTML once,
+// and are duplicated on the fly, replacing references to channel 1 with references to channels
+// 2-4. Makes changes much simpler.
+
+function duplicateOptions(channel) {
     var regexp1 = /-ch\d/g;
     var regexp2 = /([a-z]+)\(1\)/gi;
     for (var ch = 2; ch <= 4; ch++) {
 	var html = document.getElementById("vib-options-row-ch1").innerHTML;
 	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
 	document.getElementById("vib-options-row-ch"+ch).innerHTML = newHtml;
+    }
+    for (ch = 2; ch <= 4; ch++) {
+	var html = document.getElementById("audio-options-row-ch1").innerHTML;
+	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
+	document.getElementById("audio-options-row-ch"+ch).innerHTML = newHtml;
+    }
+    for (ch = 2; ch <= 4; ch++) {
+	var html = document.getElementById("sensor-options-row-ch1").innerHTML;
+	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
+	document.getElementById("sensor-options-row-ch"+ch).innerHTML = newHtml;
     }
 }
 
@@ -353,16 +364,13 @@ function showHideAudio() {
 
 function showHideHaptic() {
     var hapticHiddenDiv = document.getElementById("haptic-options-disabled");
-    var hapticShownDivA = document.getElementById("haptic-options-A");
-    var hapticShownDivB = document.getElementById("haptic-options-B");
+    var hapticShownDiv  = document.getElementById("haptic-options");
     if (document.getElementById('show-hide-haptic').checked) {
 	hapticHiddenDiv.style.display = "none";
-	hapticShownDivA.style.display = "";
-	hapticShownDivB.style.display = "";
+	hapticShownDiv.style.display = "";
     } else {
 	hapticHiddenDiv.style.display = "";
-	hapticShownDivA.style.display = "none";
-	hapticShownDivB.style.display = "none";
+	hapticShownDiv.style.display = "none";
     }
 }
 
@@ -378,17 +386,55 @@ function showHideAdvanced() {
     }
 }
 
-function selectHapticOutputChannel(channel) {
-    // shows one of the four forms for vibrations, hides the other three
+// Tracks which channel is currently selected.
+var selectedChannel = 1;
+
+function selectChannel(channel) {
+    // shows the channel-specific options for each category, hides the other three
     for (var i = 1; i <= 4; i++) {
+	document.getElementById("sensor-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
+	document.getElementById("audio-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
 	document.getElementById("vib-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
     }
+    document.getElementById("sensor-channel").innerHTML = channel;
+    document.getElementById("audio-channel").innerHTML = channel;
+    document.getElementById("haptic-channel").innerHTML = channel;
     selectVibWaveform(channel);
+
+    selectedChannel = channel;
 }
 
 function enableDisableChannel(channel) {
-    var enabled = document.getElementById("channel-" + channel + "-enabled").checked;
-    e = document.getElementById("channel-" + channel + "-tab").disabled = !enabled;
+    var checkbox = document.getElementById("channel-" + channel + "-enabled");
+    var enabled = checkbox.checked;
+    tab = document.getElementById("channel-" + channel + "-tab");
+    tab.disabled = !enabled;
+    if (enabled) {
+	tab.classList.remove("text-muted");
+	tab.classList.remove("bg-light");
+    } else {
+	tab.classList.add("text-muted");
+	tab.classList.add("bg-light");
+    }
+    // If it's not the currently active class, that's all we have to do.
+    if (channel != selectedChannel || enabled) {
+	return;
+    }
+    // If it is currently active, find another channel to be the selected channel
+    for (var ch = 1; ch <= 4; ch++) {
+	if (ch == channel) {continue;}
+	if (document.getElementById("channel-" + ch + "-enabled").checked) {
+	    var newTab = document.getElementById("channel-" + ch + "-tab");
+	    newTab.click();
+	    return;
+	}
+    }
+    // If we get here, it means all four channels are disabled.
+    tab.disabled = false;
+    tab.classList.remove("text-muted");
+    tab.classList.remove("bg-light");
+    checkbox.checked = true;
+    alert("You must have at least one channel enabled.");
 }
 
 function updateProximityAsSpeedStrength(channel) {
