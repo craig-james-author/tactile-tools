@@ -1,8 +1,11 @@
 
+var values = [];
 
 function initializeOnLoad() {
     updateVibrationFrequency();
+    updateCurveWidth();
     changeNumberOfSliders();
+    placeImages();
 }
 
 function changeNumberOfSliders() {
@@ -18,7 +21,7 @@ function changeNumberOfSliders() {
 	nSliders = 200;
 	alert("Max points is 200");
     }
-    var values = [];
+    values.length = 0;
     values.push(0);	// first slot not used
     var tableWidth = nSliders * 15;
     var html = "<table style=\"width: "  + tableWidth + "px;\"><tr>";
@@ -26,11 +29,12 @@ function changeNumberOfSliders() {
 	var name = "slider" + i;
 	var slider = document.getElementById(name);
 	if (slider) {
-	    values.push(slider.value);
+	    values.push(parseInt(slider.value));
 	} else {
 	    values.push(0);
 	}
-	html += "<td class=\"td-range\"><input type=\"range\" orient=\"vertical\" id=\"" + name + "\"></td>\n";
+	html += "<td class=\"td-range\"><input type=\"range\" orient=\"vertical\" id=\"" + name + "\""
+	    + " oninput=\"sliderInput("+i+")\" onchange=\"sliderChanged("+i+")\"></td>\n";
     }
     var sliders = document.getElementById("sliders-container");
     sliders.innerHTML = html;
@@ -175,3 +179,96 @@ function readSoundFile() {
     updateVibrationFrequency();
 }
 
+function updateCurveWidth() {
+    var width = document.getElementById("curve-width").value;
+    var label = document.getElementById("curve-width-label");
+    label.innerHTML = "Curve width: " + width;
+}
+
+function getRadioValue(name) {
+    var ele = document.getElementsByName(name);
+    for (i = 0; i < ele.length; i++) {
+        if (ele[i].checked) {
+ 	    return ele[i].value;
+	}
+    }
+    return ele[0].value;
+}
+
+function sliderInput(n) {
+    var curve = getRadioValue("select-curve");
+    var curveWidth = parseInt(document.getElementById("curve-width").value);
+    var halfWidth;
+    if (curve == "spline") {
+	halfWidth = curveWidth;
+    } else {
+	halfWidth = (curveWidth-1)/2;
+    }
+    var previous = values[n];
+    var current = parseInt(document.getElementById("slider"+n).value);
+    var diff = current - previous;
+    for (var x = -halfWidth; x <= halfWidth; x++) {
+	var i = n + x;
+	if (i > 0 && i < values.length && i != n) {
+	    var h;
+	    switch(curve) {
+	    case "spline":
+		h = gaussian(i, diff, n, curveWidth/4);
+		break;
+	    case "slope":
+		h = linear(i, diff, n, curveWidth);
+		break;
+	    case "straight":
+		h = straight(i, diff, n, curveWidth);
+		break;
+	    case "single":
+		h = 0;
+		break;
+	    default:
+		h = 0;
+	    }
+	    h = parseInt(0.499 + h);
+	    var newh = parseInt(values[i]) + h;
+	    document.getElementById("slider"+i).value = newh;
+	}
+    }
+}
+
+function sliderChanged(n) {
+    var numPoints = parseInt(document.getElementById("number-of-sliders").value);
+    for (var n = 1; n <= numPoints; n++) {
+	var value = document.getElementById("slider"+n).value;
+	values[n] = value;
+    }
+}
+
+function gaussian(x, height, center, width) {
+    return height * Math.exp( -((x-center)**2) / (2*(width**2)) );
+}
+
+function linear(x, height, center, width) {
+    var diff = Math.abs(x - center);
+    if (diff > width/2) {
+	return 0;
+    }
+    return parseInt(0.499 + height - height * diff / (width/2));
+}
+
+function straight(x, height, center, width) {
+    var diff = Math.abs(x - center);
+    if (diff > width/2) {
+	return 0;
+    }
+    return height;
+}
+
+function placeImage(name, where) {
+    document.getElementById(where).innerHTML = document.getElementById(name).innerHTML;
+}
+
+function placeImages() {
+    placeImage("single-point-image", "single-point-image-here");
+    placeImage("spline-image", "spline-image-here");
+    placeImage("slope-image", "slope-image-here");
+    placeImage("straight-image", "straight-image-here");
+}
