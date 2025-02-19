@@ -21,17 +21,16 @@ function changeNumberOfSliders() {
 	nSliders = 200;
 	alert("Max points is 200");
     }
-    values.length = 0;
-    values.push(0);	// first slot not used
+    values = [];
     var tableWidth = nSliders * 15;
     var html = "<table style=\"width: "  + tableWidth + "px;\"><tr>";
     for (var i = 1; i <= nSliders; i++) {
 	var name = "slider" + i;
 	var slider = document.getElementById(name);
 	if (slider) {
-	    values.push(parseInt(slider.value));
+	    values[i] = parseInt(slider.value);
 	} else {
-	    values.push(0);
+	    values[i] = 0;
 	}
 	html += "<td class=\"td-range\"><input type=\"range\" orient=\"vertical\" id=\"" + name + "\""
 	    + " oninput=\"sliderInput("+i+")\" onchange=\"sliderChanged("+i+")\"></td>\n";
@@ -77,15 +76,15 @@ async function playVibration(frequency, msecPerPoint, intensityValues) {
     for (var i = 0; i < intensityValues.length; i++) {
 	var intensity = intensityValues[i]/100.0;
 	if (intensity == 0) {
-	    intensity = 0.01;  // zero isn't allowed for exponentialRampToValueAtTime()
+	    intensity = 0.0001;  // zero isn't allowed for exponentialRampToValueAtTime()
 	}
 	// Uses exponential-ramp-to-value rather than instant intensity change
 	// to avoid "click" sounds. 5msec ramp up each change. The second
 	// exponential-ramp-to-value keeps the same intensity, so it just determines
-	// the time the next one starts.
-	g.gain.exponentialRampToValueAtTime(intensity, eventTime+0.005);
+	// the time the next one starts. The 0.00001 is just to prevent a zero exponential.
+	g.gain.exponentialRampToValueAtTime(intensity, eventTime+0.008);
 	eventTime += msecPerPoint/1000.0;
-	g.gain.exponentialRampToValueAtTime(intensity, eventTime);
+	g.gain.exponentialRampToValueAtTime(intensity, eventTime+0.00001);
     }
     o.start();
     await new Promise(r => setTimeout(r, msecPerPoint * intensityValues.length));

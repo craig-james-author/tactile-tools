@@ -16,7 +16,7 @@
 # You should have received a copy of the LGPL along with Tactile. If not,
 # see <https://www.gnu.org/licenses/>.
 #
-# Compiles the "builder" files (html, javascript, and Bootstrap css)
+# Compiles the "vibration designer" files (html, javascript, and Bootstrap css)
 # into a single HTML file. This is for ease of delivery and so that
 # it can be used even when the internet isn't available.
 #	
@@ -32,18 +32,20 @@ usage() {
     exit 1;
 }
 
-if [ "$version" != "1" -a "$version" != "2" ] ; then
-    usage "Error: version must be 1 or 2";
-fi
+#if [ "$version" != "1" -a "$version" != "2" ] ; then
+#    usage "Error: version must be 1 or 2";
+#fi
+version=2
+
 if [ -z "$dest" ] ; then
     usage "Error: Missing destination file."
     exit 1;
 fi
 
-cat builder-$version/builder.html | egrep -v -e "<link href=.*bootstrap" | egrep -v -e "<script.*</script>" >$dest
+cat vibration-design-$version/vibration-design.html | egrep -v -e "<link href=.*bootstrap" | egrep -v -e "<script.*</script>" >$dest
 
 echo "<script>" >>$dest
-cat builder-$version/builder.js | egrep -v -e "^\\s*//" >>$dest
+cat vibration-design-$version/vibration-design.js | egrep -v -e "^\\s*//" >>$dest
 echo "</script>" >>$dest
 
 echo "<style>" >>$dest

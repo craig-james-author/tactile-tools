@@ -56,6 +56,9 @@ cp $files $newdir/gemma-m0
 cd $TEENSY/tools
 ./compile-single-page-builder.sh $version $newdir/tactile-builder.html
 
+# vibration designer
+./compile-single-page-vib-designer.sh 2 $newdir/vibration-designer.html
+
 # Make the TAR file
 cd $destdir
 zip -r Arduino-$date.zip Arduino
