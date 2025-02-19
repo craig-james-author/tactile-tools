@@ -14,7 +14,7 @@
 	  <h1>Tactile Project Configurator</h1>
 	  This page generates an Arduino "sketch" for the
 	  <a href="https://docs.google.com/document/d/1PwvoPVsNonqkqNiFn8hyfcOJ5IofLOvvq3fhWHgsmE4/edit?tab=t.0" target="_tactile">
-	    Tactile project</a>. Use Use this app to configure the settings
+	    Tactile project</a>. Use this app to configure the settings
 	    for your project, then see the "Create Sketch" button and
 	    directions at the bottom of this page.
 	</div>
@@ -57,7 +57,8 @@
 	</div>
 	<div class="col-5">
 	  If you are not using a channel, disable it here to prevent it
-	  from confusing other operations.
+	  from confusing other operations. There are four "channels", each
+	  with its own sensor, audio output, and vibrator control.
 	</div>
       </div>  <!-- end of fixed ("sticky") header row with channel selector -->
 
@@ -120,7 +121,7 @@
 		  How strong the touch signal needs to be to start and stop your audio track. Range is 0 to 100. 
 		  <ul style="margin-bottom: 0em">
 		    <li><b>Touch mode:</b> values 85 and 65 typically work well.</li>
-		    <li><b>Proximity mode:</b> values of 10 and 5 typically work well.</li>
+		    <li><b>Proximity mode:</b> values of 15 and 10 typically work well.</li>
 		  </ul>
 		  Lower values mean more sensitivity, higher values mean less
 		  sensitivity. Release threshold MUST be lower than the touch threshold.
@@ -411,8 +412,8 @@
 		      </label>
 		    </div>
 		    <div>
-		      <input type="text" class="form-control" id="custom-vib-name-ch1" placeholder="<enter file
-												    name>" value="">
+		      <input type="text" class="form-control" id="custom-vib-name-ch1"
+			     placeholder="<enter file name>" value="">
 		    </div>
 		  </div>
 		</div>
@@ -748,6 +749,4 @@
 
 <script src="./builder.js"></script>
 
- <script src="https://getbootstrap.com//docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-
+<script src="https://getbootstrap.com//docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

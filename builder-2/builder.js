@@ -72,7 +72,9 @@ function createArduinoSketch() {
 	// If proximity mode is used, touch-to-stop isn't used
 	if (prox == "touch") {
 	    var touchToStop = document.getElementById("touch-to-stop-ch"+ch).checked;
-	    sketch += "  t->setTouchToStop(" + ch + ", " + touchToStop + ");\n";
+	    if (touchToStop) {
+		sketch += "  t->setTouchToStop(" + ch + ", " + touchToStop + ");\n";
+	    }
 	}
     }
 
@@ -84,6 +86,10 @@ function createArduinoSketch() {
     
     var useAudioOutput     = document.getElementById("show-hide-audio").checked;
     var useVibrationOutput = document.getElementById("show-hide-haptic").checked;
+    if (!useAudioOutput && ! useVibrationOutput) {
+	alert("Error: You must have at least one of Audio or Haptic output enabled");
+	return;
+    }
     var outputOption = [];
     if (useAudioOutput) {
 	outputOption.push("audioOutput");
@@ -154,9 +160,9 @@ function createArduinoSketch() {
     //--------------------------------------------------------------------------------
 
     if (useVibrationOutput) {
-	sketch += "\n  // Vibrator channel " + ch + ":\n";
 
 	for (var ch = 1; ch <= 4; ch++) {
+	    sketch += "\n  // Vibrator channel " + ch + ":\n";
 	    if (channelEnabled[ch-1]) {
 
 		// Selected envelope or envelope file
@@ -253,6 +259,13 @@ function touchModeChanged(channel) {
     } else {
 	vddiv.style.display = "";
 	vediv.style.display = "none";
+    }
+    if (t == "proximity") {
+	document.getElementById("touch-threshold-ch"+channel).value = 15;
+	document.getElementById("release-threshold-ch"+channel).value = 10;
+    } else {
+	document.getElementById("touch-threshold-ch"+channel).value = 85;
+	document.getElementById("release-threshold-ch"+channel).value = 65;
     }
 }
 
