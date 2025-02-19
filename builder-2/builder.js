@@ -30,6 +30,7 @@ function createArduinoSketch() {
     sketch += "  t->setLogLevel(" + logLevel + ");\n";
 
     // Which channels are enabled?
+    sketch += "\n  // Which channels are disabled (inactive)?\n";
     var channelEnabled = [];
     channelEnabled.push(document.getElementById("channel-1-enabled").checked);
     channelEnabled.push(document.getElementById("channel-2-enabled").checked);
@@ -44,36 +45,43 @@ function createArduinoSketch() {
     // Input sensors
     //--------------------------------------------------------------------------------
 
-    // touch-or-proximity menu
-    var e = document.getElementById("touch-or-proximity-menu");
-    var prox = e.options[e.selectedIndex].value;
-    if (prox == "proximity") {
-	sketch = sketch + "  t->setProximityAsVolumeMode(true);\n";
-    }
-    
-    // touch/release thresholds
-    var touchThreshold = document.getElementById("touch-threshold").value;
-    var releaseThreshold = document.getElementById("release-threshold").value;
-    if (   !checkNumber(touchThreshold, 0, 100, "Start-track threshold")
-	|| !checkNumber(touchThreshold, 0, 100, "Stop-track threshold")) {return;}
-    if (parseFloat(touchThreshold) <= parseFloat(releaseThreshold)) {
-	alert("Error: Start-track threshold must be higher that Stop-track threshold."
-	      + " (you entered '" + touchThreshold + "' and '" + releaseThreshold + "')");
-	return;
-    }
-    sketch += "  t->setTouchReleaseThresholds(" + touchThreshold + ", " + releaseThreshold + ");\n";
-    
-    // If proximity mode is used, touch-to-stop isn't used
-    if (prox == "touch") {
-	var touchToStop = document.getElementById("touch-to-stop").checked;
-	sketch += "  t->setTouchToStop(" + touchToStop + ");\n";
-    }
+    for (var ch = 1; ch <= 4; ch++) {
 
+	sketch += "\n  // Input sensor " + ch + ":\n";
+
+	// touch-or-proximity menu
+	var e = document.getElementById("touch-or-proximity-menu-ch"+ch);
+	var prox = e.options[e.selectedIndex].value;
+	if (prox == "proximity") {
+	    sketch = sketch + "  t->setProximityAsVolumeMode("+ch+", true);\n";
+	}
+
+	// touch/release thresholds
+	var touchThreshold = document.getElementById("touch-threshold-ch"+ch).value;
+	var releaseThreshold = document.getElementById("release-threshold-ch"+ch).value;
+	if (   !checkNumber(touchThreshold, 0, 100, "Start-track threshold")
+	    || !checkNumber(touchThreshold, 0, 100, "Stop-track threshold")) {return;}
+	if (parseFloat(touchThreshold) <= parseFloat(releaseThreshold)) {
+	    alert("Error: Start-track threshold must be higher that Stop-track threshold."
+		  + " (you entered '" + touchThreshold + "' and '" + releaseThreshold + "')");
+	    return;
+	}
+    
+	sketch += "  t->setTouchReleaseThresholds(" + ch + ", " + touchThreshold + ", " + releaseThreshold + ");\n";
+
+	// If proximity mode is used, touch-to-stop isn't used
+	if (prox == "touch") {
+	    var touchToStop = document.getElementById("touch-to-stop-ch"+ch).checked;
+	    sketch += "  t->setTouchToStop(" + ch + ", " + touchToStop + ");\n";
+	}
+    }
 
     //--------------------------------------------------------------------------------
     // Audio, Vibrate, or both?
     //--------------------------------------------------------------------------------
 
+    sketch += "\n  // Output audio, vibration, or both?\n";
+    
     var useAudioOutput     = document.getElementById("show-hide-audio").checked;
     var useVibrationOutput = document.getElementById("show-hide-haptic").checked;
     var outputOption = [];
@@ -95,86 +103,95 @@ function createArduinoSketch() {
 
     if (useAudioOutput) {
 
-      // If proximity mode is used, Fade-in, fade-out, and volume aren't used.
-      if (prox == "touch") {
+	for (var ch = 1; ch <= 4; ch++) {
 
-	  // Volume
-	  var volume = document.getElementById("volume").value;
-	  if (!checkNumber(volume, 0, 100, "Volume")) {return;}
-	  sketch += "  t->setVolume(" + volume + ");\n";
+	    sketch += "\n  // Audio channel " + ch + ":\n";
+	    // If proximity mode is used, Fade-in, fade-out, and volume aren't used.
+	    if (prox == "touch") {
 
-	  // Fade-in and fade-out
-	  var fadeIn  = document.getElementById("fade-in").value;
-	  var fadeOut = document.getElementById("fade-out").value;
-	  if (   !checkNumber(fadeIn, 0, 100000, "Fade-in")
-	      || !checkNumber(fadeOut, 0, 10000, "Fade-out")) { return; }
-	  sketch += "  t->setFadeInTime(" + fadeIn + ");\n";
-	  sketch += "  t->setFadeOutTime(" + fadeOut + ");\n";
-      }
+		// Volume
+		var volume = document.getElementById("volume-ch"+ch).value;
+		if (!checkNumber(volume, 0, 100, "Volume")) {return;}
+		sketch += "  t->setVolume(" + ch + ", " + volume + ");\n";
 
-      // Multi-track mode
-      var multiTrack = document.getElementById("multi-track").checked;
-      sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
+		// Fade-in and fade-out
+		var fadeIn  = document.getElementById("fade-in-ch"+ch).value;
+		var fadeOut = document.getElementById("fade-out-ch"+ch).value;
+		if (   !checkNumber(fadeIn, 0, 100000, "Fade-in-ch"+ch)
+		    || !checkNumber(fadeOut, 0, 10000, "Fade-out-ch"+ch)) { return; }
+		sketch += "  t->setFadeInTime(" + ch + ", " + fadeIn + ");\n";
+		sketch += "  t->setFadeOutTime(" + ch + ", " + fadeOut + ");\n";
+	    }
 
-      // Continue-track mode
-      var continueTrack = document.getElementById("continue-track").checked;
-      sketch += "  t->setContinueTrackMode(" + continueTrack + ");\n";
+	    // Continue-track mode
+	    var continueTrack = document.getElementById("continue-track-ch"+ch).checked;
+	    sketch += "  t->setContinueTrackMode(" + ch + ", " + continueTrack + ");\n";
 
-      // Inactivity timeout
-      var inactivityTimeout = document.getElementById("inactivity-timeout").value;
-      if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
-      sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
+	    // Random-track mode
+	    var randomTrack = document.getElementById("random-track-ch"+ch).checked;
+	    sketch += "  t->setPlayRandomTrackMode(" + ch + ", " + randomTrack + ");\n";
 
-      // Random-track mode
-      var randomTrack = document.getElementById("random-track").checked;
-      sketch += "  t->setPlayRandomTrackMode(" + randomTrack + ");\n";
+	    // Track looping
+	    var trackLooping = document.getElementById("track-looping-ch"+ch).checked;
+	    sketch += "  t->setLoopMode(" + ch + ", " + trackLooping + ");\n";
 
-      // Track looping
-      var trackLooping = document.getElementById("track-looping").checked;
-      sketch += "  t->setLoopMode(" + trackLooping + ");\n";
+	}
     }
     
+    // Inactivity timeout (applies to all channels)
+    sketch += "\n  // All audio channels:\n";
+
+    var inactivityTimeout = document.getElementById("inactivity-timeout").value;
+    if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
+    sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
+
+    // Multi-track mode (applies to all channels)
+    var multiTrack = document.getElementById("multi-track").checked;
+    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
+
     //--------------------------------------------------------------------------------
     // Vibration output. Each channel has its own set of options
     //--------------------------------------------------------------------------------
 
     if (useVibrationOutput) {
-	for (var channel = 1; channel <= 4; channel++) {
-	    if (channelEnabled[channel-1]) {
+	sketch += "\n  // Vibrator channel " + ch + ":\n";
+
+	for (var ch = 1; ch <= 4; ch++) {
+	    if (channelEnabled[ch-1]) {
 
 		// Selected envelope or envelope file
-		var e = document.getElementById("vibration-waveform-ch"+channel);
+		var e = document.getElementById("vibration-waveform-ch"+ch);
 		vibChoice = e.options[e.selectedIndex].value;
 		if (vibChoice == "custom-file") {
-		    var fileName = document.getElementById("custom-vib-name-ch"+channel).value;
+		    var fileName = document.getElementById("custom-vib-name-ch"+ch).value;
 		    if (!fileName) {
-			alert("Error: Haptic Channel " + channel + ": the 'custom file' choice requires a filename");
+			alert("Error: Haptic Channel " + ch + ": the 'custom file' choice requires a filename");
 			return;
 		    }
-		    sketch += "  t->setVibrationEnvelopeFile(" + channel + ", \"" + fileName + "\");\n";
+		    sketch += "  t->setVibrationEnvelopeFile(" + ch + ", \"" + fileName + "\");\n";
 		} else if (vibChoice) {
-		    sketch += "  t->setVibrationEnvelope(" + channel + ", \"" + vibChoice + "\");\n";
+		    sketch += "  t->setVibrationEnvelope(" + ch + ", \"" + vibChoice + "\");\n";
 		}
 
 		// Vibrator type, and if linear, get the frequency
-		var vibType = document.getElementById("vibrator-type-ch"+channel).value;
+		var vibType = document.getElementById("vibrator-type-ch"+ch).value;
 		if (vibType == "motor") {
-		    sketch += "  t->setVibratorType(" + channel + ", motorVibrator);\n";
+		    sketch += "  t->setVibratorType(" + ch + ", motorVibrator);\n";
 		} else {
-		    sketch += "  t->setVibratorType(" + channel + ", linearVibrator);\n";
-		    var vibFrequency = document.getElementById("vibrator-frequency-ch"+channel).value;
-		    sketch += "  t->setVibrationFrequency(" + channel + ", " + vibFrequency + ");\n";
+		    sketch += "  t->setVibratorType(" + ch + ", linearVibrator);\n";
+		    var vibFrequency = document.getElementById("vibrator-frequency-ch"+ch).value;
+		    sketch += "  t->setVibrationFrequency(" + ch + ", " + vibFrequency + ");\n";
 		}
 
 		// What to do with proximity?
 		if (prox == "proximity") {
 		    //   Radio button 1: nothing, 2: intensity, 3: speed
-		    if (document.getElementById("use-proximity-for-vib-2-ch"+channel).checked) {
-			sketch += "  t->useProximityAsIntensity(" + channel + ", true);\n";
+		    if (document.getElementById("use-proximity-for-vib-2-ch"+ch).checked) {
+			sketch += "  t->useProximityAsIntensity(" + ch + ", true);\n";
 		    }
-		    if (document.getElementById("use-proximity-for-vib-3-ch"+channel).checked) {
-			var multiplier = document.getElementById("proximity-speed-ch" + channel).value;
-			sketch += "  t->useProximityAsSpeed(" + channel + ", true, " + multiplier + ");\n";
+		    if (document.getElementById("use-proximity-for-vib-3-ch"+ch).checked) {
+			var multiplier = document.getElementById("proximity-speed-ch" + ch).value;
+			sketch += "  t->useProximityAsSpeed(" + ch + ", true, " + multiplier + ");\n";
 		    }
 		}
 	    }
@@ -186,23 +203,22 @@ function createArduinoSketch() {
     // Advanced options
     //--------------------------------------------------------------------------------
 
+    sketch += "\n  // General (advanced) options (uncomment to change):\n";
     // Proximity multiplier
     for (var i = 1; i <= 4; i++) {
 	var id = "proximity-multiplier-" + i;
 	var m = document.getElementById(id).value;
 	var fieldName = "Proximity multiplier " + i;
 	if (!checkNumber(m, 0, 100, fieldName)) { return; }
-	if (parseFloat(m) != 1.0) {
-	    sketch += "  t->setProximityMultiplier(" + i + ", " + m + ");\n";
-	}
+	var commentIt = (parseFloat(m) == 1.0) ? "// " : "";
+	sketch += "  " + commentIt + "t->setProximityMultiplier(" + i + ", " + m + ");\n";
     }
 
     // Averaging strength
     var averaging = document.getElementById("averaging").value;
     if (!checkNumber(averaging, 1, 10000, "Averaging")) { return; }
-    if (parseInt(averaging) != 200) {
-	sketch += "  t->setAveragingStrength(" + averaging + ");\n";
-    }
+    var commentIt =  (parseInt(averaging) == 200) ? "// " : "";
+    sketch += "  " + commentIt + "t->setAveragingStrength(" + averaging + ");\n";
 
     // Close out the sketch
     sketch = sketch
@@ -334,19 +350,19 @@ function duplicateOptions(channel) {
     var regexp1 = /-ch\d/g;
     var regexp2 = /([a-z]+)\(1\)/gi;
     for (var ch = 2; ch <= 4; ch++) {
-	var html = document.getElementById("vib-options-row-ch1").innerHTML;
-	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
-	document.getElementById("vib-options-row-ch"+ch).innerHTML = newHtml;
+	let html = document.getElementById("sensor-options-row-ch1").innerHTML;
+	let newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
+	document.getElementById("sensor-options-row-ch"+ch).innerHTML = newHtml;
     }
     for (ch = 2; ch <= 4; ch++) {
-	var html = document.getElementById("audio-options-row-ch1").innerHTML;
-	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
+	let html = document.getElementById("audio-options-row-ch1").innerHTML;
+	let newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
 	document.getElementById("audio-options-row-ch"+ch).innerHTML = newHtml;
     }
     for (ch = 2; ch <= 4; ch++) {
-	var html = document.getElementById("sensor-options-row-ch1").innerHTML;
-	var newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
-	document.getElementById("sensor-options-row-ch"+ch).innerHTML = newHtml;
+	let html = document.getElementById("vib-options-row-ch1").innerHTML;
+	let newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
+	document.getElementById("vib-options-row-ch"+ch).innerHTML = newHtml;
     }
 }
 
