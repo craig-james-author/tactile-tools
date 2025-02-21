@@ -20,15 +20,18 @@ function createArduinoSketch() {
 	+ "#include \"Tactile.h\"\n"
 	+ "\n"
 	+ "Tactile *t;\n"
-	+ "void setup() {\n"
-	+ "  t = Tactile::setup();\n"
-	+ "\n";
-    
+        + "\n"
+        + "void setup() {\n"
+        + "\n";
+
     // Log level. This goes first (even though it's near the bottom of the form) because
     // if enabled, we want the other options to be logged as they're set.
     var logLevel = document.getElementById("log-level").value;
-    sketch += "  t->setLogLevel(" + logLevel + ");\n";
 
+    sketch += "  setLogLevel(" + logLevel + ");\n"
+        + "\n"
+	+ "  t = Tactile::setup();\n";
+    
     // Which channels are enabled?
     sketch += "\n  // Which channels are disabled (inactive)?\n";
     var channelEnabled = [];
