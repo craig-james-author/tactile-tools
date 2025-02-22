@@ -135,394 +135,424 @@
 	  <div class="container" id="sensor-options-row-ch3">Sensor Options Channel 3 go here</div>
 	  <div class="container" id="sensor-options-row-ch4">Sensor Options Channel 4 go here</div>
 
+	  <!-- Multi-Track and Inactivity Timeout apply to all channels -->
+	  <div class="container" id="audio-options-row-all">
+
+	    <div class="row border-bottom border-top bg-light">
+	      <div class="col-3 border-end">
+		<h3>Global Options</h3>
+	      </div>
+	      <div class="col-9" style="padding-top: 0.5em;">
+		<i>These options apply to all channels, audio and vibrations.</i>
+	      </div>
+	    </div>
+
+	    <div class="row border-bottom">
+	      <div class="col-4 border-end">
+		<div class="input-group">
+		  <div class="input-group-prepend" style="width: 80%;">
+		    <label class="input-group-text" for="inactivity-timeout">
+		      Inactivity timeout (seconds):
+		    </label>
+		  </div>
+		  <input type="text" class="form-control" id="inactivity-timeout" value="60">
+		</div>
+	      </div>
+	      <div class="col-8">
+		If you enable continue-track mode (above), then the inactivity timeout
+		specifies an idle time; if that time passes with no activity (no
+		sensors touched), then all tracks are reset and will start playing
+		from the beginning the next time a sensor is touched (rather than
+		resuming where it left off). Time is in seconds. A value of zero means
+		no timeout.
+	      </div>
+	    </div>
+
+	    <div class="row border-bottom">
+	      <div class="col-4 border-end" style="padding-left: 3em;">
+		<div class="form-check form-switch" style="padding-top: 1em;">
+		  <input class="form-check-input" type="checkbox" id="multi-track" unchecked>
+		  <label class="form-check-label" for="multi-track">Enable multi-track mode</label>
+		</div>
+	      </div>
+	      <div class="col-8">
+		Enables multiple simultaneous tracks; that is, if you touch two or more sensors,
+		the associated audio files and/or vibrations will play simultaneously. If disabled,
+		only one channel plays at a time.
+	      </div>
+	    </div>
+
+	  </div>
+
+
 	  <!-- -------------------- AUDIO OUTPUT OPTIONS -------------------- -->
 
 	  <div class="container text-left" style="margin-top: 1em;">
 	    <div class="row border-bottom border-top bg-light">
-	      <div class="col-1">
-		<div class="form-check form-switch" style="padding-top: 0.5em;">
-		  <input class="form-check-input" type="checkbox" id="show-hide-audio"
-			 onChange="showHideAudio()" checked>
-		</div>
-	      </div>
-	      <div class="col-3">
+	      <div class="col-3 border-end">
 		<h3>Audio Options (<span id="audio-channel">1</span>)</h3>
 	      </div>
-	      <div class="col-8" style="padding-top: 0.5em;">
-		<i>Click on the switch at the left to enable/disable audio ouput.</i>
-	      </div>
-	    </div>
-	    <div class="row border-bottom" id="audio-options-disabled">
-	      <div class="col-1"></div>
-	      <div class="col-11" style="padding: 1em;">
-		<i>Audio output is disabled. Click on the switch above to enable
-		  and show all the audio-output options.</i>
+	      <div class="col-9" style="padding-top: 0.5em;">
+		<i>These options control audio output for this channel.</i>
 	      </div>
 	    </div>
 	  </div>
 
 	  <!-- -------------------- One row of audio options, gets duplicated 3x by JavaScript ---------- -->
-	  <div id="audio-options">
-	    <div class="container text-left" id="audio-options-row-ch1">
-	      <div class="row border-bottom" id="volume-row-ch1">
-		<div class="col-4 border-end">
-		  <div class="input-group">
-		    <div class="input-group-prepend" style="width: 80%;">
-		      <label class="input-group-text" for="volume" style="text-align: right;">
-			Volume:
-		      </label>
-		    </div>
-		    <input type="text" class="form-control" id="volume-ch1" value="100">
-		  </div>
-		</div>
-		<div class="col-8">
-		  Volume control, range is 0 to 100. You'll typically leave this at 100, but there may
-		  be applications for which lower values are appropriate. <i>(Note: this is hidden when
-		    "Proximity mode" is selected above.)</i>
-		</div>
-	      </div>
-	      
-	      <div class="row border-bottom" id="fade-in-out-row-ch1">
-		<div class="col-4 border-end">
-		  <div class="input-group">
-		    <div class="input-group-prepend" style="width: 80%;">
-		      <label class="input-group-text" for="fade-in" style="text-align: right;">
-			Fade-in (msec):
-		      </label>
-		    </div>
-		    <input type="text" class="form-control" id="fade-in-ch1" value="0">
-		  </div>
-		  <div class="input-group">
-		    <div class="input-group-prepend"  style="width: 80%;">
-		      <label class="input-group-text" for="fade-out">
-			Fade out (msec):
-		      </label>
-		    </div>
-		    <input type="text" class="form-control" id="fade-out-ch1" value="0">
-		  </div>
-		</div>
-		<div class="col-8">
-		  By default a track starts playing at full volume, and stops
-		  immediately when the sensor is released. If you specify a fade-in
-		  and/or fade-out time, then the track's volume fades in and/or out for
-		  the specified time (in milliseconds, e.g.  1500 is 1.5
-		  seconds). <i>(Note: this is hidden when "Proximity mode" is selected
-		    above.)</i>
-		</div>
-	      </div>
+	  <div class="container text-left" style="margin-top: 1em;" id="audio-row-ch1">
 
-	      <div class="row border-bottom" id="touch-to-stop-row-ch1">
-		<div class="col-4 border-end" style="padding-left: 3em;">
-		  <div class="form-check form-switch" style="padding-top: 1em;">
-		    <input class="form-check-input" type="checkbox" id="touch-to-stop-ch1" unchecked>
-		    <label class="form-check-label" for="touch-to-stop">Enable touch-to-stop</label>
-		  </div>
-		</div>
-		<div class="col-8">
-		  Touch-start / touch-stop mode. Normally your audio plays while you're
-		  touching the sensor and stops when you release. With this enabled, a
-		  touch starts the audio, which keeps playing until you touch again.
-		  <i>(Note: this is hidden when "Proximity mode" is selected above.)</i>
+	    <!-- this is the enable/disable row and stays visible as long as this channel is selected -->
+	    <div class="row">
+	      <div class="col-1">
+		<div class="form-check form-switch" style="padding-top: 0.25em;">
+		  <input class="form-check-input" type="checkbox" id="enable-audio-ch1"
+			 onChange="enableAudio(1)" checked>
 		</div>
 	      </div>
-
-	      <div class="row border-bottom">
-		<div class="col-4 border-end" style="padding-left: 3em;">
-		  <div class="form-check form-switch" style="padding-top: 1em;">
-		    <input class="form-check-input" type="checkbox" id="continue-track-ch1" unchecked>
-		    <label class="form-check-label" for="continue-track">Enable continue-track mode</label>
-		  </div>
-		</div>
-		<div class="col-8">
-		  If this is enabled, then when a track is playing and the sensor is
-		  released and touched again, the audio track resume where it left
-		  off. If disabled, the audio track starts from the beginning each time
-		  the sensor is touched.
-		</div>
+	      <div class="col-3">
+		<h5>Enable audio</h5>
 	      </div>
-
-	      <div class="row border-bottom">
-		<div class="col-4 border-end" style="padding-left: 3em;">
-		  <div class="form-check form-switch" style="padding-top: 1em;">
-		    <input class="form-check-input" type="checkbox" id="random-track-ch1" unchecked>
-		    <label class="form-check-label" for="random-track">Enable random-track mode</label>
-		  </div>
-		</div>
-		<div class="col-8">
-		  Normally a single track corresponds to each sensor, and is played when
-		  the sensor is touched. If random-track mode is enabled ("true"), then
-		  a touched sensor will cause a track to be randomly selected from a
-		  corresponding folder on the micro-SD card (which must be named E1, E2,
-		  E3, and E4).  Each folder can contain from one to 100 tracks. The
-		  selection is random, except that the most-recently-played track is
-		  avoided (i.e. the same track won't play twice in a row, unless there's
-		  only one track in the folder).
-		</div>
-	      </div>
-
-	      <div class="row border-bottom">
-		<div class="col-4 border-end" style="padding-left: 3em;">
-		  <div class="form-check form-switch" style="padding-top: 1em;">
-		    <input class="form-check-input" type="checkbox" id="track-looping-ch1" unchecked>
-		    <label class="form-check-label" for="track-looping">Enable track looping</label>
-		  </div>
-		</div>
-		<div class="col-8">
-		  What happens when an audio track reaches the end. Normally, the track is stopped, but if this is
-		  enabled, the track loops back to the beginning and continues playing.
-		</div>
+	      <div class="col-8" style="padding-top: 0.5em;">
+		<i>Click on the switch at the left to enable/disable audio
+		  ouput for this channel.</i>
 	      </div>
 	    </div>
-	    <!-- -------------------- End row of audio options, gets duplicated 3x by JavaScript ---------- -->
-
-	    <!-- Placeholders, content gets replace by copies of vibration options above. -->
-	    <div class="container" id="audio-options-row-ch2">Audio Options Channel 2 go here</div>
-	    <div class="container" id="audio-options-row-ch3">Audio Options Channel 3 go here</div>
-	    <div class="container" id="audio-options-row-ch4">Audio Options Channel 4 go here</div>
-
-	    <!-- Multi-Track and Inactivity Timeout apply to all channels -->
-	    <div class="container">
-
-	      <div class="row border-bottom">
-		<h4 style="margin-top: 0.5em;">Audio options that apply to all channels:</h4>
-	      </div>
-	      <div class="row border-bottom">
-		<div class="col-4 border-end" style="padding-left: 3em;">
-		  <div class="form-check form-switch" style="padding-top: 1em;">
-		    <input class="form-check-input" type="checkbox" id="multi-track" unchecked>
-		    <label class="form-check-label" for="multi-track">Enable multi-track mode</label>
-		  </div>
-		</div>
-		<div class="col-8">
-		  Enables multiple simultaneous tracks; that is, if you touch two or
-		  more sensors, the associated audio files will play simultaneously. If
-		  disabled, only one track plays at a time.
-		</div>
-	      </div>
-
-	      <div class="row border-bottom">
-		<div class="col-4 border-end">
-		  <div class="input-group">
-		    <div class="input-group-prepend" style="width: 80%;">
-		      <label class="input-group-text" for="inactivity-timeout">
-			Inactivity timeout (seconds):
-		      </label>
+	    
+	    <!-- This row contains the rest of the audio options for this channel and is
+	         hidden when the "enable audio" checkbox above is unchecked. -->
+	    <div class="row" id="audio-options-ch1">
+	      <div class="container">
+		<div class="row border-bottom" id="volume-row-ch1">
+		  <div class="col-4 border-end">
+		    <div class="input-group">
+		      <div class="input-group-prepend" style="width: 80%;">
+			<label class="input-group-text" for="volume" style="text-align: right;">
+			  Volume:
+			</label>
+		      </div>
+		      <input type="text" class="form-control" id="volume-ch1" value="100">
 		    </div>
-		    <input type="text" class="form-control" id="inactivity-timeout" value="60">
+		  </div>
+		  <div class="col-8">
+		    Volume control, range is 0 to 100. You'll typically leave this at 100, but there may
+		    be applications for which lower values are appropriate. <i>(Note: this is hidden when
+		      "Proximity mode" is selected above.)</i>
 		  </div>
 		</div>
-		<div class="col-8">
-		  If you enable continue-track mode (above), then the inactivity timeout
-		  specifies an idle time; if that time passes with no activity (no
-		  sensors touched), then all tracks are reset and will start playing
-		  from the beginning the next time a sensor is touched (rather than
-		  resuming where it left off). Time is in seconds. A value of zero means
-		  no timeout.
+		
+		<div class="row border-bottom" id="fade-in-out-row-ch1">
+		  <div class="col-4 border-end">
+		    <div class="input-group">
+		      <div class="input-group-prepend" style="width: 80%;">
+			<label class="input-group-text" for="fade-in" style="text-align: right;">
+			  Fade-in (msec):
+			</label>
+		      </div>
+		      <input type="text" class="form-control" id="fade-in-ch1" value="0">
+		    </div>
+		    <div class="input-group">
+		      <div class="input-group-prepend"  style="width: 80%;">
+			<label class="input-group-text" for="fade-out">
+			  Fade out (msec):
+			</label>
+		      </div>
+		      <input type="text" class="form-control" id="fade-out-ch1" value="0">
+		    </div>
+		  </div>
+		  <div class="col-8">
+		    By default a track starts playing at full volume, and stops
+		    immediately when the sensor is released. If you specify a fade-in
+		    and/or fade-out time, then the track's volume fades in and/or out for
+		    the specified time (in milliseconds, e.g.  1500 is 1.5
+		    seconds). <i>(Note: this is hidden when "Proximity mode" is selected
+		      above.)</i>
+		  </div>
 		</div>
-	      </div>
-	    </div>
+		
+		<div class="row border-bottom" id="touch-to-stop-row-ch1">
+		  <div class="col-4 border-end" style="padding-left: 3em;">
+		    <div class="form-check form-switch" style="padding-top: 1em;">
+		      <input class="form-check-input" type="checkbox" id="touch-to-stop-ch1" unchecked>
+		      <label class="form-check-label" for="touch-to-stop">Enable touch-to-stop</label>
+		    </div>
+		  </div>
+		  <div class="col-8">
+		    Touch-start / touch-stop mode. Normally your audio plays while you're
+		    touching the sensor and stops when you release. With this enabled, a
+		    touch starts the audio, which keeps playing until you touch again.
+		    <i>(Note: this is hidden when "Proximity mode" is selected above.)</i>
+		  </div>
+		</div>
 
-	  </div> <!-- end of "audio-options" section -->
+		<div class="row border-bottom">
+		  <div class="col-4 border-end" style="padding-left: 3em;">
+		    <div class="form-check form-switch" style="padding-top: 1em;">
+		      <input class="form-check-input" type="checkbox" id="continue-track-ch1" unchecked>
+		      <label class="form-check-label" for="continue-track">Enable continue-track mode</label>
+		    </div>
+		  </div>
+		  <div class="col-8">
+		    If this is enabled, then when a track is playing and the sensor is
+		    released and touched again, the audio track resume where it left
+		    off. If disabled, the audio track starts from the beginning each time
+		    the sensor is touched.
+		  </div>
+		</div>
+
+		<div class="row border-bottom">
+		  <div class="col-4 border-end" style="padding-left: 3em;">
+		    <div class="form-check form-switch" style="padding-top: 1em;">
+		      <input class="form-check-input" type="checkbox" id="random-track-ch1" unchecked>
+		      <label class="form-check-label" for="random-track">Enable random-track mode</label>
+		    </div>
+		  </div>
+		  <div class="col-8">
+		    Normally a single track corresponds to each sensor, and is played when
+		    the sensor is touched. If random-track mode is enabled ("true"), then
+		    a touched sensor will cause a track to be randomly selected from a
+		    corresponding folder on the micro-SD card (which must be named E1, E2,
+		    E3, and E4).  Each folder can contain from one to 100 tracks. The
+		    selection is random, except that the most-recently-played track is
+		    avoided (i.e. the same track won't play twice in a row, unless there's
+		    only one track in the folder).
+		  </div>
+		</div>
+
+		<div class="row border-bottom">
+		  <div class="col-4 border-end" style="padding-left: 3em;">
+		    <div class="form-check form-switch" style="padding-top: 1em;">
+		      <input class="form-check-input" type="checkbox" id="track-looping-ch1" unchecked>
+		      <label class="form-check-label" for="track-looping">Enable track looping</label>
+		    </div>
+		  </div>
+		  <div class="col-8">
+		    What happens when an audio track reaches the end. Normally, the track is stopped, but if this is
+		    enabled, the track loops back to the beginning and continues playing.
+		  </div>
+		</div>
+	      </div>	<!-- end of single row of "audio-row-chx" -->
+	    </div>	<!-- end of "audio-options-chx" container -->
+	  </div>
+	  <!-- -------------------- End row of audio options, gets duplicated 3x by JavaScript ---------- -->
+
+	  <!-- Placeholders, content gets replace by copies of vibration options above. -->
+	  <div class="container text-left" style="margin-top: 1em;" id="audio-row-ch2">Audio Options Channel 2 go here</div>
+	  <div class="container text-left" style="margin-top: 1em;" id="audio-row-ch3">Audio Options Channel 3 go here</div>
+	  <div class="container text-left" style="margin-top: 1em;" id="audio-row-ch4">Audio Options Channel 4 go here</div>
 
 	  <!-- -------------------- HAPTIC (VIBRATOR) OPTIONS -------------------- -->
 
 	  <div class="container text-left" style="margin-top: 1em;">
 	    <div class="row border-bottom border-top bg-light">
-	      <div class="col-1">
-		<div class="form-check form-switch" style="padding-top: 0.5em;">
-		  <input class="form-check-input" type="checkbox" id="show-hide-haptic" onChange="showHideHaptic()" unchecked>
-		</div>
-	      </div>
 	      <div class="col-3">
 		<h3>Haptic Options (<span id="haptic-channel">1</span>)</h3>
 	      </div>
 	      <div class="col-8" style="padding-top: 0.5em;">
-		<i>Click on the switch at the left to enable/disable haptic
-		  (vibration) ouput.</i>
-	      </div>
-	    </div>
-
-	    <div class="row border-bottom" id="haptic-options-disabled">
-	      <div class="col-1"></div>
-	      <div class="col-11" style="padding: 1em;">
-		<i>Haptic output is disabled. Click on the switch above to enable
-		  and show all the haptic-output options.</i>
+		<i>These options control haptic (vibration) output for this channel</i>
 	      </div>
 	    </div>
 	  </div>
 
 	  <!-- -------------------- One row of vibration options, gets duplicated 3x by JavaScript ---------- -->
-	  <div id="haptic-options">
-	    <div class="container" id="vib-options-row-ch1">
-	      <div class="row border-bottom">
-		<div class="col-1"></div>
-		<div class="col-3 border-end">
-		  <div class="fw-bold fs-5">Select vibrator type:</div>
-		  <select class="form-select" id="vibrator-type-ch1" onChange="selectVibratorType(1)">
-		    <option value="motor">Motor Vibrator</option>
-		    <option value="linear">Linear Vibrator</option>
-		  </select>
-		  <div class="input-group" style="margin-top: 1em;" id="vibrator-frequency-group-ch1" style="display:none;">
-		    <div class="input-group-prepend" style="width: 80%;">
-		      <label class="input-group-text" for="vibrator-frequency-ch1" id="vibrator-frequency-label-ch1">
-			Frequency: xx Hz
-		      </label>
-		    </div>
-		    <input type="range" style="width:90%" value="150" step="5"
-			   min="30" max="400" id="vibrator-frequency-ch1" oninput="updateVibrationFrequency(1)">
-		  </div>
-		</div>
-		<div class="col-8">
-		  <div class="container">
-		    <div class="row">
-		      <div class="col-6">
-			Specifies the type of vibrator you are using:
-			<div id="vibrator-types-here-ch1">Vibrator image here</div>
-		      </div>
-		      <div class="col-6">
-			<ul>
-			  <li><b>Motor vibrators</b> are small motors with an eccentric (out of balance) weight. They are
-			    powered by a DC voltage.</li>
-			  <li><b>Linear vibrators</b> are like a small speaker, but without the speaker cone. They
-			    usually have a resonant frequency (e.g. 150 Hz) where they operate best, and should be
-			    driven by an AC voltage at or near that frequency.</li>
-			</ul>
-		      </div>
-		    </div>
-		  </div>
+	  <div class="container text-left" style="margin-top: 1em;" id="haptic-row-ch1">
+
+	    <!-- this is the enable/disable row and stays visible as long as this channel is selected -->
+	    <div class="row">
+	      <div class="col-1">
+		<div class="form-check form-switch" style="padding-top: 0.25em;">
+		  <input class="form-check-input" type="checkbox" id="enable-haptic-ch1"
+			 onChange="enableHaptic(1)">
 		</div>
 	      </div>
-	      <div class="row border-bottom">
-		<div class="col-1"></div>
-		<div class="col-3 border-end">
-		  <div class="fw-bold fs-5">Select vibration shape:</div>
-		  <select class="form-select" id="vibration-waveform-ch1" onChange="selectVibWaveform(1)">
-		    <option value="">Select...</option>
-		    <option value="continuous">Continuous vibration</option>
-		    <option value="square-wave">Continuous on/off</option>
-		    <option value="sawtooth-wave">Continuous up/down volume</option>
-		    <option value="single-pulse">Single pulse</option>
-		    <option value="single-pulse-fade">Single pulse with fade-out</option>
-		    <option value="custom-file">Custom file</option>
-		  </select>
-		  <div class="input-group" id="custom-vib-file-container-ch1" style="padding-top: 1em">
-		    <div class="input-group-prepend">
-		      <label class="input-group-text" for="custom-vib-name-ch1">
-			Custom-vibration file:
-		      </label>
-		    </div>
-		    <div>
-		      <input type="text" class="form-control" id="custom-vib-name-ch1"
-			     placeholder="<enter file name>" value="">
-		    </div>
-		  </div>
-		</div>
-		<div class="col-8">
-		  <div id="straight-line-container-ch1">
-		    <span id="straight-line-here-ch1"></span> Continuous vibration
-		  </div>
-		  <div id="square-wave-container-ch1">
-		    <span id="square-wave-here-ch1"></span> Continuous on/off vibration
-		  </div>
-		  <div id="sawtooth-wave-container-ch1">
-		    <span id="sawtooth-wave-here-ch1"></span> Continuous up/down intensity vibration
-		  </div>
-		  <div id="single-pulse-wave-container-ch1">
-		    <span id="single-pulse-wave-here-ch1"></span> A single pulse of vibration
-		  </div>
-		  <div id="single-pulse-fade-wave-container-ch1">
-		    <span id="single-pulse-fade-wave-here-ch1"></span> A single pulse of vibration with fade-out
-		  </div>
-		  <div id="custom-file-wave-container-ch1">
-		    <span id="custom-design-here-ch1"></span>A custom vibration profile
-		  </div>
-		  <div style="margin-left: 70px;" id="custom-vib-explanation-ch1">
-		    A custom vibration profile ("envelope") that you create with
-		    the <a href="tactile-vibration-designer.html" target="_vib">Tactile Vibration
-		    Designer</a> and save to your micro-SD card. Enter the name
-		    of the file here.
-		  </div>
-		</div>
+	      <div class="col-3">
+		<h5>Enable haptics</h5>
 	      </div>
-	      <div class="row border-bottom">
-		<div class="col-1"></div>
-		<div class="col-3 border-end">
-
-		  <div class="fw-bold fs-5">Sensor-Proximity action:</div>
-		  <div id="vib-proximity-enabled-ch1">
-		    <div class="form-check">
-		      <input class="form-check-input" type="radio"
-			     name="useProximityForVib-ch1" id="use-proximity-for-vib-1-ch1" checked
-			     onchange="proximityVibActionChanged(1)">
-		      <label class="form-check-label" for="use-proximity-for-vib-1-ch1">
-			Fixed intensity/speed
-		      </label>
-		    </div>
-		    <div class="form-check">
-		      <input class="form-check-input" type="radio"
-			     name="useProximityForVib-ch1" id="use-proximity-for-vib-2-ch1"
-			     onchange="proximityVibActionChanged(1)">
-
-		      <label class="form-check-label" for="use-proximity-for-vib-2-ch1">
-			Proximity controls intensity
-		      </label>
-		    </div>
-		    <div class="form-check">
-		      <input class="form-check-input" type="radio"
-			     name="useProximityForVib-ch1" id="use-proximity-for-vib-3-ch1"
-			     onchange="proximityVibActionChanged(1)">
-		      <label class="form-check-label" for="use-proximity-for-vib-3-ch1">
-			Proximity controls speed
-		      </label>
-		    </div>
-
-		    <div class="input-group" id="proximity-speed-group-ch1" style="display:none;">
+	      <div class="col-8" style="padding-top: 0.5em;">
+		<i>Click on the switch at the left to enable/disable haptic (vibration)
+		  ouput for this channel.</i>
+	      </div>
+	    </div>
+	    
+	    <!-- This row contains the rest of the haptic options for this channel and is
+	         hidden when the "enable haptics" checkbox above is unchecked. -->
+	    <div class="row" id="haptic-options-ch1">
+	      <div class="container">
+		<div class="row border-bottom" id="haptic-row-ch1">
+		  <div class="col-1"></div>
+		  <div class="col-3 border-end">
+		    <div class="fw-bold fs-5">Select vibrator type:</div>
+		    <select class="form-select" id="vibrator-type-ch1" onChange="selectVibratorType(1)">
+		      <option value="motor">Motor Vibrator</option>
+		      <option value="linear">Linear Vibrator</option>
+		    </select>
+		    <div class="input-group" style="margin-top: 1em;" id="vibrator-frequency-group-ch1" style="display:none;">
 		      <div class="input-group-prepend" style="width: 80%;">
-			<label class="input-group-text" for="proximity-speed-ch1" id="proximity-speed-label-ch1">
-			  Speedup: xx%
+			<label class="input-group-text" for="vibrator-frequency-ch1" id="vibrator-frequency-label-ch1">
+			  Frequency: xx Hz
 			</label>
 		      </div>
-		      <input type="range" style="width:90%" value="100" step="10"
-			     min="-90" max="1000" id="proximity-speed-ch1" oninput="updateProximityAsSpeedStrength(1)">
+		      <input type="range" style="width:90%" value="150" step="5"
+			     min="30" max="400" id="vibrator-frequency-ch1" oninput="updateVibrationFrequency(1)">
 		    </div>
 		  </div>
-		  <div class="text-secondary font-italic" id="vib-proximity-disabled-ch1">
-		    Proximity is not enabled. To use this feature, select "Proximity Mode" in the
-		    Sensor Options above.
+		  <div class="col-8">
+		    <div class="container">
+		      <div class="row">
+			<div class="col-6">
+			  Specifies the type of vibrator you are using:
+			  <div id="vibrator-types-here-ch1">Vibrator image here</div>
+			</div>
+			<div class="col-6">
+			  <ul>
+			    <li><b>Motor vibrators</b> are small motors with an eccentric (out of balance) weight. They are
+			      powered by a DC voltage.</li>
+			    <li><b>Linear vibrators</b> are like a small speaker, but without the speaker cone. They
+			      usually have a resonant frequency (e.g. 150 Hz) where they operate best, and should be
+			      driven by an AC voltage at or near that frequency.</li>
+			  </ul>
+			</div>
+		      </div>
+		    </div>
 		  </div>
-
 		</div>
-		<div class="col-8">
-		  Controls how "proximity" (of your hand to a sensor) affects the vibration:
-		  <ul>
-		    <li><b>Fixed intensity/speed:</b> Proximity only determines on/off; the vibration's intensity
-		      and speed are fixed.</li>
-		    <li><b>Proximity controls intensity:</b> As proximity decreases (your hand gets closer to the sensor),
-		      the intensity of vibration increases.</li>
-		    <li><b>Proximity controls speed:</b> As proximity decreases (your hand gets closer to the sensor),
-		      the speed of the vibration pattern increases. For this option, you'll also select a "speedup"
-		      factor. For example, if you're using a vibration pulses that are normally one second apart with a
-		      speedup of 100%, then when proximity gets to zero (your hand touches the sensor), the pulses will be
-		      twice as fast, or 1/2 second apart.
-		    </li>
-		  </ul>
+		<div class="row border-bottom">
+		  <div class="col-1"></div>
+		  <div class="col-3 border-end">
+		    <div class="fw-bold fs-5">Select vibration shape:</div>
+		    <select class="form-select" id="vibration-waveform-ch1" onChange="selectVibWaveform(1)">
+		      <option value="">Select...</option>
+		      <option value="continuous">Continuous vibration</option>
+		      <option value="square-wave">Continuous on/off</option>
+		      <option value="sawtooth-wave">Continuous up/down volume</option>
+		      <option value="single-pulse">Single pulse</option>
+		      <option value="single-pulse-fade">Single pulse with fade-out</option>
+		      <option value="custom-file">Custom file</option>
+		    </select>
+		    <div class="input-group" id="custom-vib-file-container-ch1" style="padding-top: 1em">
+		      <div class="input-group-prepend">
+			<label class="input-group-text" for="custom-vib-name-ch1">
+			  Custom-vibration file:
+			</label>
+		      </div>
+		      <div>
+			<input type="text" class="form-control" id="custom-vib-name-ch1"
+			       placeholder="<enter file name>" value="">
+		      </div>
+		    </div>
+		  </div>
+		  <div class="col-8">
+		    <div id="straight-line-container-ch1">
+		      <span id="straight-line-here-ch1"></span> Continuous vibration
+		    </div>
+		    <div id="square-wave-container-ch1">
+		      <span id="square-wave-here-ch1"></span> Continuous on/off vibration
+		    </div>
+		    <div id="sawtooth-wave-container-ch1">
+		      <span id="sawtooth-wave-here-ch1"></span> Continuous up/down intensity vibration
+		    </div>
+		    <div id="single-pulse-wave-container-ch1">
+		      <span id="single-pulse-wave-here-ch1"></span> A single pulse of vibration
+		    </div>
+		    <div id="single-pulse-fade-wave-container-ch1">
+		      <span id="single-pulse-fade-wave-here-ch1"></span> A single pulse of vibration with fade-out
+		    </div>
+		    <div id="custom-file-wave-container-ch1">
+		      <span id="custom-design-here-ch1"></span>A custom vibration profile
+		    </div>
+		    <div style="margin-left: 70px;" id="custom-vib-explanation-ch1">
+		      A custom vibration profile ("envelope") that you create with
+		      the <a href="tactile-vibration-designer.html" target="_vib">Tactile Vibration
+			Designer</a> and save to your micro-SD card. Enter the name
+		      of the file here.
+		    </div>
+		  </div>
+		</div>
+		<div class="row border-bottom">
+		  <div class="col-1"></div>
+		  <div class="col-3 border-end">
+		    
+		    <div class="fw-bold fs-5">Sensor-Proximity action:</div>
+		    <div id="vib-proximity-enabled-ch1">
+		      <div class="form-check">
+			<input class="form-check-input" type="radio"
+			       name="useProximityForVib-ch1" id="use-proximity-for-vib-1-ch1" checked
+			       onchange="proximityVibActionChanged(1)">
+			<label class="form-check-label" for="use-proximity-for-vib-1-ch1">
+			  Fixed intensity/speed
+			</label>
+		      </div>
+		      <div class="form-check">
+			<input class="form-check-input" type="radio"
+			       name="useProximityForVib-ch1" id="use-proximity-for-vib-2-ch1"
+			       onchange="proximityVibActionChanged(1)">
+			
+			<label class="form-check-label" for="use-proximity-for-vib-2-ch1">
+			  Proximity controls intensity
+			</label>
+		      </div>
+		      <div class="form-check">
+			<input class="form-check-input" type="radio"
+			       name="useProximityForVib-ch1" id="use-proximity-for-vib-3-ch1"
+			       onchange="proximityVibActionChanged(1)">
+			<label class="form-check-label" for="use-proximity-for-vib-3-ch1">
+			  Proximity controls speed
+			</label>
+		      </div>
+
+		      <div class="input-group" id="proximity-speed-group-ch1" style="display:none;">
+			<div class="input-group-prepend" style="width: 80%;">
+			  <label class="input-group-text" for="proximity-speed-ch1" id="proximity-speed-label-ch1">
+			    Speedup: xx%
+			  </label>
+			</div>
+			<input type="range" style="width:90%" value="100" step="10"
+			       min="-90" max="1000" id="proximity-speed-ch1" oninput="updateProximityAsSpeedStrength(1)">
+		      </div>
+		    </div>
+		    <div class="text-secondary font-italic" id="vib-proximity-disabled-ch1">
+		      Proximity is not enabled. To use this feature, select "Proximity Mode" in the
+		      Sensor Options above.
+		    </div>
+		    
+		  </div>
+		  <div class="col-8">
+		    Controls how "proximity" (of your hand to a sensor) affects the vibration:
+		    <ul>
+		      <li><b>Fixed intensity/speed:</b> Proximity only determines on/off; the
+			vibration's intensity and speed are fixed.</li>
+		      <li><b>Proximity controls intensity:</b> As proximity decreases (your hand
+			gets closer to the sensor), the intensity of vibration increases.</li>
+		      <li><b>Proximity controls speed:</b> As proximity decreases (your hand gets
+			closer to the sensor), the speed of the vibration pattern increases. For
+			this option, you'll also select a "speedup" factor. For example, if you're
+			using a vibration pulses that are normally one second apart with a speedup
+			of 100%, then when proximity gets to zero (your hand touches the sensor),
+			the pulses will be twice as fast, or 1/2 second apart.
+		      </li>
+		    </ul>
+		  </div>
 		</div>
 	      </div>
+	    </div>	<!-- end of single row of "haptic-row-chx" -->
+	  </div>	<!-- end of "haptic-options-chx" container -->
+	  <!-- -------------------- End row of vibration options, gets duplicated 3x by JavaScript ---------- -->
 
-	      <!-- -------------------- End row of vibration options, gets duplicated 3x by JavaScript ---------- -->
-	    </div>
+	  <!-- Placeholders, content gets replace by copies of haptic options above. -->
+	  <div class="container text-left" style="margin-top: 1em;" id="haptic-row-ch2">
+	    Haptic Options Channel 2 go here
+	  </div>
+	  <div class="container text-left" style="margin-top: 1em;" id="haptic-row-ch3">
+	    Haptic Options Channel 3 go here
+	  </div>
+	  <div class="container text-left" style="margin-top: 1em;" id="haptic-row-ch4">
+	    Haptic Options Channel 4 go here
+	  </div>
 
-	    <!-- Placeholders, content gets replace by copies of vibration options above. -->
-	    <div class="container" id="vib-options-row-ch2">Vib Options Channel 2 go here</div>
-	    <div class="container" id="vib-options-row-ch3">Vib Options Channel 3 go here</div>
-	    <div class="container" id="vib-options-row-ch4">Vib Options Channel 4 go here</div>
-
-	  </div>	<!-- end of "haptic-options" section -->
+	</div>	<!-- end of "haptic-options" section -->
 
 	  <!-- ---------------------------------------------------------------------- -->
 
-	</div> <!-- this is the end of the scrolling "non-sticky" row that encompasses the whole form -->
-      </div>
+      </div> <!-- this is the end of the scrolling "non-sticky" row that encompasses the whole form -->
     </div> <!-- end of container that holds sticky and scrolling sections -->
     
 
@@ -532,7 +562,7 @@
       <div class="row border-bottom border-top bg-light">
 	<div class="col-1">
 	  <div class="form-check form-switch" style="padding-top: 0.5em;">
-	    <input class="form-check-input" type="checkbox" id="show-hide-advanced" onChange="showHideAdvanced()" unchecked>
+	    <input class="form-check-input" type="checkbox" id="enable-advanced" onChange="enableAdvanced()" unchecked>
 	  </div>
 	</div>
 	<div class="col-3">

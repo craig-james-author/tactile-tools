@@ -12,6 +12,32 @@
 //  You should have received a copy of the LGPL along with Tactile. If not,
 //  see <https://www.gnu.org/licenses/>.
 
+
+//----------------------------------------------------------------------
+// Setup the web page, be sure all enable/disable fields are applied
+
+function initializeOnLoad() {
+    duplicateOptions();
+    for (var ch = 1; ch <= 4; ch++) {
+	touchModeChanged(ch);
+    }
+    placeImages();
+    selectChannel(1);
+    enableAdvanced();
+    for (var ch = 1; ch <= 4; ch++) {
+	enableAudio(ch);
+	enableHaptic(ch);
+	enableDisableChannel(ch);
+	proximityVibActionChanged(ch);
+	updateProximityAsSpeedStrength(ch);
+	updateVibrationFrequency(ch);
+	selectVibratorType(ch);
+    }
+}
+
+//----------------------------------------------------------------------
+// Write out the Arduino sketch using all the form fields.
+
 function createArduinoSketch() {
 
     // sketch C++ header
@@ -87,24 +113,39 @@ function createArduinoSketch() {
 
     sketch += "\n  // Output audio, vibration, or both?\n";
     
-    var useAudioOutput     = document.getElementById("show-hide-audio").checked;
-    var useVibrationOutput = document.getElementById("show-hide-haptic").checked;
-    if (!useAudioOutput && ! useVibrationOutput) {
-	alert("Error: You must have at least one of Audio or Haptic output enabled");
-	return;
-    }
-    var outputOption = [];
-    if (useAudioOutput) {
-	outputOption.push("audioOutput");
-    }
-    if (useVibrationOutput) {
-	outputOption.push("vibrationOutput");
-    }
     for (ch = 1; ch <= 4; ch++) {
+	var useAudioOutput     = document.getElementById("enable-audio-ch"+ch).checked;
+	var useVibrationOutput = document.getElementById("enable-haptic-ch"+ch).checked;
+	if (!useAudioOutput && ! useVibrationOutput) {
+	    alert("Error: Channel " + ch + ": You must have at least one of Audio or Haptic output enabled");
+	    return;
+	}
+	var outputOption = [];
+	if (useAudioOutput) {
+	    outputOption.push("audioOutput");
+	}
+	if (useVibrationOutput) {
+	    outputOption.push("vibrationOutput");
+	}
 	if (channelEnabled[ch-1]) {
 	    sketch += "  t->setOutputDestination(" + ch + ", " + outputOption.join(", ") + ");\n";
 	}
     }
+
+    //----------------------------------------------------------------------
+    // Options for all channels
+    //----------------------------------------------------------------------
+
+    sketch += "\n  // Options that apply to all channels:\n";
+
+    // Inactivity timeout (applies to all channels)
+    var inactivityTimeout = document.getElementById("inactivity-timeout").value;
+    if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
+    sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
+
+    // Multi-track mode (applies to all channels)
+    var multiTrack = document.getElementById("multi-track").checked;
+    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
 
     //--------------------------------------------------------------------------------
     // Audio Output control
@@ -147,17 +188,6 @@ function createArduinoSketch() {
 	}
     }
     
-    // Inactivity timeout (applies to all channels)
-    sketch += "\n  // All audio channels:\n";
-
-    var inactivityTimeout = document.getElementById("inactivity-timeout").value;
-    if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
-    sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
-
-    // Multi-track mode (applies to all channels)
-    var multiTrack = document.getElementById("multi-track").checked;
-    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
-
     //--------------------------------------------------------------------------------
     // Vibration output. Each channel has its own set of options
     //--------------------------------------------------------------------------------
@@ -165,9 +195,10 @@ function createArduinoSketch() {
     if (useVibrationOutput) {
 
 	for (var ch = 1; ch <= 4; ch++) {
-	    sketch += "\n  // Vibrator channel " + ch + ":\n";
+
 	    if (channelEnabled[ch-1]) {
 
+		sketch += "\n  // Vibrator channel " + ch + ":\n";
 		// Selected envelope or envelope file
 		var e = document.getElementById("vibration-waveform-ch"+ch);
 		vibChoice = e.options[e.selectedIndex].value;
@@ -239,7 +270,13 @@ function createArduinoSketch() {
     document.getElementById("sketch").innerHTML = sketch;
 }
 
+//----------------------------------------------------------------------
+// Called whenever touch/proximity mode changes.
+
 function touchModeChanged(channel) {
+
+    // Touch mode: volume, fade-in and fade-out are shown.
+    // Proximity mode: they're hidden
     var e = document.getElementById("touch-or-proximity-menu-ch"+channel);
     var t = e.options[e.selectedIndex].value;
     var frow = document.getElementById("fade-in-out-row-ch"+channel);
@@ -263,6 +300,7 @@ function touchModeChanged(channel) {
 	vddiv.style.display = "";
 	vediv.style.display = "none";
     }
+    // If touch/proximity changed, "suggest" an appropriate touch/release threshold
     if (t == "proximity") {
 	document.getElementById("touch-threshold-ch"+channel).value = 15;
 	document.getElementById("release-threshold-ch"+channel).value = 10;
@@ -272,7 +310,13 @@ function touchModeChanged(channel) {
     }
 }
 
+//----------------------------------------------------------------------
+// Called whenever the vibration-envelope ("Vibration shape") menu
+// changes. Updates the UI to show what the user has selected.
+
 function selectVibWaveform(channel) {
+
+    // When a waveform is selected, highlight the descriptive text about that waveform.
     var e = document.getElementById("vibration-waveform-ch"+channel);
     var v = e.options[e.selectedIndex].value;
     var sl = document.getElementById("straight-line-container-ch"+channel);
@@ -294,6 +338,7 @@ function selectVibWaveform(channel) {
     else if (v == "single-pulse-fade") { pf.classList.add("text-primary"); }
     else if (v == "custom-file")       { cu.classList.add("text-primary"); }
 
+    // If "custom vibration" is selected, show the form field for entering the file's name
     var customFileContainer = document.getElementById("custom-vib-file-container-ch"+channel);
     var customFileExplanation = document.getElementById("custom-vib-explanation-ch"+channel);
     if (v == "custom-file") {
@@ -305,23 +350,8 @@ function selectVibWaveform(channel) {
     }
 }
 
-function initializeOnLoad() {
-    duplicateOptions();
-    for (var ch = 1; ch <= 4; ch++) {
-	touchModeChanged(ch);
-    }
-    showHideAudio();
-    showHideHaptic();
-    showHideAdvanced();
-    placeImages();
-    selectChannel(1);
-    for (var ch = 1; ch <= 4; ch++) {
-	enableDisableChannel(ch);
-	proximityVibActionChanged(ch);
-	updateProximityAsSpeedStrength(ch);
-	updateVibrationFrequency(ch);
-    }
-}
+//----------------------------------------------------------------------
+// Utilities to verify that numbers entered on the form are actually numbers.
 
 function isNumeric(str) {
     if (typeof str != "string") return false;
@@ -342,6 +372,13 @@ function checkNumber(str, lowLimit, highLimit, fieldLabel) {
     return true;
 }
 
+//---------------------------------------------------------------------------------------
+// A number of images are stored directly in the HTML as base64 encoding. This allows us
+// to have the entire form in one file with no external dependencies. These are huge
+// and impair readability, so they're all stored at the end of the HTML file. When the
+// file is loaded, these functions copy the images and place them in the document
+// where they belong.
+
 function placeImage(name, where) {
     document.getElementById(where).innerHTML = document.getElementById(name).innerHTML;
 }
@@ -358,9 +395,13 @@ function placeImages() {
     }
 }
 
-// Rather than make four copies, the sensor, audio, and haptic options are only in the HTML once,
-// and are duplicated on the fly, replacing references to channel 1 with references to channels
-// 2-4. Makes changes much simpler.
+//----------------------------------------------------------------------
+// There are four versions of many of the form fields, one for each of the
+// channels.  Rather than make four duplicate sections, each one only
+// occurs once in the HTML file. When the document is loaded, each of these
+// sections is duplicated on the fly, replacing references to channel 1
+// with references to channels 2-4. This makes editing the form much
+// simpler, as each change only needs to be made once.
 
 function duplicateOptions(channel) {
     var regexp1 = /-ch\d/g;
@@ -371,45 +412,40 @@ function duplicateOptions(channel) {
 	document.getElementById("sensor-options-row-ch"+ch).innerHTML = newHtml;
     }
     for (ch = 2; ch <= 4; ch++) {
-	let html = document.getElementById("audio-options-row-ch1").innerHTML;
+	let html = document.getElementById("audio-row-ch1").innerHTML;
 	let newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
-	document.getElementById("audio-options-row-ch"+ch).innerHTML = newHtml;
+	document.getElementById("audio-row-ch"+ch).innerHTML = newHtml;
     }
     for (ch = 2; ch <= 4; ch++) {
-	let html = document.getElementById("vib-options-row-ch1").innerHTML;
+	let html = document.getElementById("haptic-row-ch1").innerHTML;
 	let newHtml = html.replace(regexp1, "-ch"+ch).replace(regexp2, "$1("+ch+")");
-	document.getElementById("vib-options-row-ch"+ch).innerHTML = newHtml;
+	document.getElementById("haptic-row-ch"+ch).innerHTML = newHtml;
     }
 }
 
-function showHideAudio() {
-    var audioHiddenDiv = document.getElementById("audio-options-disabled");
-    var audioShownDiv  = document.getElementById("audio-options");
-    if (document.getElementById('show-hide-audio').checked) {
-	audioHiddenDiv.style.display = "none";
-	audioShownDiv.style.display = "";
-    } else {
-	audioHiddenDiv.style.display = "";
-	audioShownDiv.style.display = "none";
-    }
+//----------------------------------------------------------------------
+// Functions that respond to the enable/disable checkboxes and
+
+// Tracks which channel is currently selected.
+var selectedChannel = 1;
+
+// Responds to the enable/disable-audio checkbox
+function enableAudio(channel) {
+    var show = document.getElementById("enable-audio-ch"+channel).checked;
+    document.getElementById("audio-options-ch"+channel).style.display = show ? "" : "none";
 }
 
-function showHideHaptic() {
-    var hapticHiddenDiv = document.getElementById("haptic-options-disabled");
-    var hapticShownDiv  = document.getElementById("haptic-options");
-    if (document.getElementById('show-hide-haptic').checked) {
-	hapticHiddenDiv.style.display = "none";
-	hapticShownDiv.style.display = "";
-    } else {
-	hapticHiddenDiv.style.display = "";
-	hapticShownDiv.style.display = "none";
-    }
+// Responds to the enable/disable-haptic checkbox
+function enableHaptic(channel) {
+    var show = document.getElementById("enable-haptic-ch"+channel).checked;
+    document.getElementById("haptic-options-ch"+channel).style.display = show ? "" : "none";
 }
 
-function showHideAdvanced() {
+// Responds to the enable/disable-advanced checkbox
+function enableAdvanced() {
     var advancedHiddenDiv = document.getElementById("advanced-options-disabled");
     var advancedShownDiv  = document.getElementById("advanced-options");
-    if (document.getElementById('show-hide-advanced').checked) {
+    if (document.getElementById("enable-advanced").checked) {
 	advancedHiddenDiv.style.display = "none";
 	advancedShownDiv.style.display = "";
     } else {
@@ -418,23 +454,29 @@ function showHideAdvanced() {
     }
 }
 
-// Tracks which channel is currently selected.
-var selectedChannel = 1;
+//----------------------------------------------------------------------
+// Responds to clicks on the "Channel [1234]" tabs at the top of the form,
+// makes the selected channel's form fields visible and hides the other
+// channels.
 
 function selectChannel(channel) {
-    // shows the channel-specific options for each category, hides the other three
+    selectedChannel = channel;
     for (var i = 1; i <= 4; i++) {
-	document.getElementById("sensor-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
-	document.getElementById("audio-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
-	document.getElementById("vib-options-row-ch"+i).style.display = (channel == i) ? "" : "none";
+	var display = (channel == i) ? "" : "none";
+	document.getElementById("sensor-options-row-ch"+i).style.display = display;
+	document.getElementById("haptic-row-ch"+i).style.display = display;
+	document.getElementById("audio-row-ch"+i).style.display = display;
     }
     document.getElementById("sensor-channel").innerHTML = channel;
     document.getElementById("audio-channel").innerHTML = channel;
     document.getElementById("haptic-channel").innerHTML = channel;
     selectVibWaveform(channel);
-
-    selectedChannel = channel;
 }
+
+//----------------------------------------------------------------------
+// Responds to the "enable" checkbox below the "Channel [1234] tabs at the top
+// of the form. When a channel is disabled, it can't be selected and its fields
+// aren't written to the Arduino sketch.
 
 function enableDisableChannel(channel) {
     var checkbox = document.getElementById("channel-" + channel + "-enabled");
@@ -469,11 +511,20 @@ function enableDisableChannel(channel) {
     alert("You must have at least one channel enabled.");
 }
 
+//----------------------------------------------------------------------
+// Called whenever the proximity-as-speed slider (range input) changes.
+// Updates the label to reflect the selected speedup percentage.
+
 function updateProximityAsSpeedStrength(channel) {
     var speedup = document.getElementById("proximity-speed-ch"+channel).value;
     var label = document.getElementById("proximity-speed-label-ch"+channel);
     label.innerHTML = "Speedup: " + speedup + "%";
 }
+
+//----------------------------------------------------------------------
+// If sensor-proximity is used, AND the "Sensor-Proximity action" is "Proximity
+// controls speed, then show the "Speedup" slider (range) item and its label.
+// Otherwise, hide it.
 
 function proximityVibActionChanged(channel) {
     var checked = document.getElementById("use-proximity-for-vib-3-ch"+channel).checked;
@@ -481,11 +532,19 @@ function proximityVibActionChanged(channel) {
     e.style.display = checked ? "" : "none";
 }
 
+//----------------------------------------------------------------------
+// If "Linear vibrator" is selected, then show the "Frequency" slider (range) item.
+// Otherwise, hide it.
+
 function selectVibratorType(channel) {
     var type = document.getElementById("vibrator-type-ch"+channel).value;
     var e = document.getElementById("vibrator-frequency-group-ch"+channel);
     e.style.display = (type == "linear") ? "" : "none";
 }
+
+//----------------------------------------------------------------------
+// Called whenever the vibration-frequency slider changes. Updates the label
+// to show the selected frequency.
 
 function updateVibrationFrequency(channel) {
     var freq = document.getElementById("vibrator-frequency-ch"+channel).value;
