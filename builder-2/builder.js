@@ -82,7 +82,7 @@ function createArduinoSketch() {
 	var e = document.getElementById("touch-or-proximity-menu-ch"+ch);
 	var prox = e.options[e.selectedIndex].value;
 	if (prox == "proximity") {
-	    sketch = sketch + "  t->setProximityAsVolumeMode("+ch+", true);\n";
+	    sketch = sketch + "  t->useProximityAsVolumeMode("+ch+", true);\n";
 	}
 
 	// touch/release thresholds
@@ -331,12 +331,12 @@ function selectVibWaveform(channel) {
     pw.classList.remove("text-primary");
     pf.classList.remove("text-primary");
     cu.classList.remove("text-primary");
-    if      (v == "continuous")        { sl.classList.add("text-primary"); }
-    else if (v == "square-wave")       { sq.classList.add("text-primary"); }
-    else if (v == "sawtooth-wave")     { sw.classList.add("text-primary"); }
-    else if (v == "single-pulse")      { pw.classList.add("text-primary"); }
-    else if (v == "single-pulse-fade") { pf.classList.add("text-primary"); }
-    else if (v == "custom-file")       { cu.classList.add("text-primary"); }
+    if      (v == "continuous")   { sl.classList.add("text-primary"); }
+    else if (v == "square")       { sq.classList.add("text-primary"); }
+    else if (v == "sawtooth")     { sw.classList.add("text-primary"); }
+    else if (v == "pulse")        { pw.classList.add("text-primary"); }
+    else if (v == "pulse-fade")   { pf.classList.add("text-primary"); }
+    else if (v == "custom-file")  { cu.classList.add("text-primary"); }
 
     // If "custom vibration" is selected, show the form field for entering the file's name
     var customFileContainer = document.getElementById("custom-vib-file-container-ch"+channel);
