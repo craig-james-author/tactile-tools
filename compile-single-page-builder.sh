@@ -40,7 +40,7 @@ if [ -z "$dest" ] ; then
     exit 1;
 fi
 
-cat builder-$version/builder.html | egrep -v -e "<link href=.*bootstrap" | egrep -v -e "<script.*</script>" >$dest
+cat builder-$version/builder.html | egrep -v -e "<link href=.*bootstrap" | egrep -v -e "<script src=\"./builder.js\"></script>" >$dest
 
 echo "<script>" >>$dest
 cat builder-$version/builder.js | egrep -v -e "^\\s*//" >>$dest

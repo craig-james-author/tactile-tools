@@ -36,7 +36,7 @@ function initializeOnLoad() {
 }
 
 //----------------------------------------------------------------------
-// Write out the Arduino sketch using all the form fields.
+// Gather all form fields and write the Arduino sketch
 
 function createArduinoSketch() {
 
@@ -58,25 +58,32 @@ function createArduinoSketch() {
         + "\n"
 	+ "  t = Tactile::setup();\n";
     
-    // Which channels are enabled?
-    sketch += "\n  // Which channels are disabled (inactive)?\n";
-    var channelEnabled = [];
-    channelEnabled.push(document.getElementById("channel-1-enabled").checked);
-    channelEnabled.push(document.getElementById("channel-2-enabled").checked);
-    channelEnabled.push(document.getElementById("channel-3-enabled").checked);
-    channelEnabled.push(document.getElementById("channel-4-enabled").checked);
-    for (var i = 1; i <= 4; i++)
-    {
-	sketch += "  t->ignoreSensor(" + i + ", " + !channelEnabled[i-1] + ");\n";
-    }
+    // Inactivity timeout (applies to all channels)
+    var inactivityTimeout = document.getElementById("inactivity-timeout").value;
+    if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
+    sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
 
-    //--------------------------------------------------------------------------------
-    // Input sensors
-    //--------------------------------------------------------------------------------
+    // Multi-track mode (applies to all channels)
+    var multiTrack = document.getElementById("multi-track").checked;
+    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
 
+    // Loop over channels, write options
     for (var ch = 1; ch <= 4; ch++) {
+	
+	sketch += "\n  // Channel " + ch + "\n";
 
-	sketch += "\n  // Input sensor " + ch + ":\n";
+	//----------------------------------------------------------------------
+	// If channel is disabled, that's all we need to know.
+	//----------------------------------------------------------------------
+
+	if (!document.getElementById("channel-" + ch + "-enabled").checked) {
+	    sketch += "  t->ignoreSensor(" + ch + ", true);\n";
+	    continue;
+	}
+
+	//----------------------------------------------------------------------
+	// Sensor options
+	//----------------------------------------------------------------------
 
 	// touch-or-proximity menu
 	var e = document.getElementById("touch-or-proximity-menu-ch"+ch);
@@ -85,7 +92,7 @@ function createArduinoSketch() {
 	    sketch = sketch + "  t->useProximityAsVolumeMode("+ch+", true);\n";
 	}
 
-	// touch/release thresholds
+	// Touch/release thresholds
 	var touchThreshold = document.getElementById("touch-threshold-ch"+ch).value;
 	var releaseThreshold = document.getElementById("release-threshold-ch"+ch).value;
 	if (   !checkNumber(touchThreshold, 0, 100, "Start-track threshold")
@@ -95,7 +102,7 @@ function createArduinoSketch() {
 		  + " (you entered '" + touchThreshold + "' and '" + releaseThreshold + "')");
 	    return;
 	}
-    
+
 	sketch += "  t->setTouchReleaseThresholds(" + ch + ", " + touchThreshold + ", " + releaseThreshold + ");\n";
 
 	// If proximity mode is used, touch-to-stop isn't used
@@ -105,15 +112,11 @@ function createArduinoSketch() {
 		sketch += "  t->setTouchToStop(" + ch + ", " + touchToStop + ");\n";
 	    }
 	}
-    }
+	
+	//----------------------------------------------------------------------
+	// Audio, vibration, or both?
+	//----------------------------------------------------------------------
 
-    //--------------------------------------------------------------------------------
-    // Audio, Vibrate, or both?
-    //--------------------------------------------------------------------------------
-
-    sketch += "\n  // Output audio, vibration, or both?\n";
-    
-    for (ch = 1; ch <= 4; ch++) {
 	var useAudioOutput     = document.getElementById("enable-audio-ch"+ch).checked;
 	var useVibrationOutput = document.getElementById("enable-haptic-ch"+ch).checked;
 	if (!useAudioOutput && ! useVibrationOutput) {
@@ -127,35 +130,13 @@ function createArduinoSketch() {
 	if (useVibrationOutput) {
 	    outputOption.push("vibrationOutput");
 	}
-	if (channelEnabled[ch-1]) {
-	    sketch += "  t->setOutputDestination(" + ch + ", " + outputOption.join(", ") + ");\n";
-	}
-    }
+	
+	//----------------------------------------------------------------------
+	// Audio options
+	//----------------------------------------------------------------------
 
-    //----------------------------------------------------------------------
-    // Options for all channels
-    //----------------------------------------------------------------------
+	if (useAudioOutput) {
 
-    sketch += "\n  // Options that apply to all channels:\n";
-
-    // Inactivity timeout (applies to all channels)
-    var inactivityTimeout = document.getElementById("inactivity-timeout").value;
-    if (!checkNumber(inactivityTimeout, 0, 100000, "Inactivity timeout")) { return; }
-    sketch += "  t->setInactivityTimeout(" + inactivityTimeout + ");\n";
-
-    // Multi-track mode (applies to all channels)
-    var multiTrack = document.getElementById("multi-track").checked;
-    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
-
-    //--------------------------------------------------------------------------------
-    // Audio Output control
-    //--------------------------------------------------------------------------------
-
-    if (useAudioOutput) {
-
-	for (var ch = 1; ch <= 4; ch++) {
-
-	    sketch += "\n  // Audio channel " + ch + ":\n";
 	    // If proximity mode is used, Fade-in, fade-out, and volume aren't used.
 	    if (prox == "touch") {
 
@@ -163,7 +144,7 @@ function createArduinoSketch() {
 		var volume = document.getElementById("volume-ch"+ch).value;
 		if (!checkNumber(volume, 0, 100, "Volume")) {return;}
 		sketch += "  t->setVolume(" + ch + ", " + volume + ");\n";
-
+		
 		// Fade-in and fade-out
 		var fadeIn  = document.getElementById("fade-in-ch"+ch).value;
 		var fadeOut = document.getElementById("fade-out-ch"+ch).value;
@@ -184,81 +165,80 @@ function createArduinoSketch() {
 	    // Track looping
 	    var trackLooping = document.getElementById("track-looping-ch"+ch).checked;
 	    sketch += "  t->setLoopMode(" + ch + ", " + trackLooping + ");\n";
-
 	}
-    }
-    
-    //--------------------------------------------------------------------------------
-    // Vibration output. Each channel has its own set of options
-    //--------------------------------------------------------------------------------
+	
+	//--------------------------------------------------------------------------------
+	// Vibration output. Each channel has its own set of options
+	//--------------------------------------------------------------------------------
 
-    if (useVibrationOutput) {
+	if (useVibrationOutput) {
 
-	for (var ch = 1; ch <= 4; ch++) {
-
-	    if (channelEnabled[ch-1]) {
-
-		sketch += "\n  // Vibrator channel " + ch + ":\n";
-		// Selected envelope or envelope file
-		var e = document.getElementById("vibration-waveform-ch"+ch);
-		vibChoice = e.options[e.selectedIndex].value;
-		if (vibChoice == "custom-file") {
-		    var fileName = document.getElementById("custom-vib-name-ch"+ch).value;
-		    if (!fileName) {
-			alert("Error: Haptic Channel " + ch + ": the 'custom file' choice requires a filename");
-			return;
-		    }
-		    sketch += "  t->setVibrationEnvelopeFile(" + ch + ", \"" + fileName + "\");\n";
-		} else if (vibChoice) {
-		    sketch += "  t->setVibrationEnvelope(" + ch + ", \"" + vibChoice + "\");\n";
+	    // Selected envelope or envelope file
+	    var e = document.getElementById("vibration-waveform-ch"+ch);
+	    vibChoice = e.options[e.selectedIndex].value;
+	    if (vibChoice == "custom-file") {
+		var fileName = document.getElementById("custom-vib-name-ch"+ch).value;
+		if (!fileName) {
+		    alert("Error: Haptic Channel " + ch + ": the 'custom file' choice requires a filename");
+		    return;
 		}
+		sketch += "  t->setVibrationEnvelopeFile(" + ch + ", \"" + fileName + "\");\n";
+	    } else if (vibChoice) {
+		sketch += "  t->setVibrationEnvelope(" + ch + ", \"" + vibChoice + "\");\n";
+	    }
 
-		// Vibrator type, and if linear, get the frequency
-		var vibType = document.getElementById("vibrator-type-ch"+ch).value;
-		if (vibType == "motor") {
-		    sketch += "  t->setVibratorType(" + ch + ", motorVibrator);\n";
-		} else {
-		    sketch += "  t->setVibratorType(" + ch + ", linearVibrator);\n";
-		    var vibFrequency = document.getElementById("vibrator-frequency-ch"+ch).value;
-		    sketch += "  t->setVibrationFrequency(" + ch + ", " + vibFrequency + ");\n";
+	    // Vibrator type, and if linear, get the frequency
+	    var vibType = document.getElementById("vibrator-type-ch"+ch).value;
+	    if (vibType == "motor") {
+		sketch += "  t->setVibratorType(" + ch + ", motorVibrator);\n";
+	    } else {
+		sketch += "  t->setVibratorType(" + ch + ", linearVibrator);\n";
+		var vibFrequency = document.getElementById("vibrator-frequency-ch"+ch).value;
+		sketch += "  t->setVibrationFrequency(" + ch + ", " + vibFrequency + ");\n";
+	    }
+
+	    // What to do with proximity?
+	    if (prox == "proximity") {
+		//   Radio button 1: nothing, 2: intensity, 3: speed
+		if (document.getElementById("use-proximity-for-vib-2-ch"+ch).checked) {
+		    sketch += "  t->useProximityAsIntensity(" + ch + ", true);\n";
 		}
-
-		// What to do with proximity?
-		if (prox == "proximity") {
-		    //   Radio button 1: nothing, 2: intensity, 3: speed
-		    if (document.getElementById("use-proximity-for-vib-2-ch"+ch).checked) {
-			sketch += "  t->useProximityAsIntensity(" + ch + ", true);\n";
-		    }
-		    if (document.getElementById("use-proximity-for-vib-3-ch"+ch).checked) {
-			var multiplier = document.getElementById("proximity-speed-ch" + ch).value;
-			sketch += "  t->useProximityAsSpeed(" + ch + ", true, " + multiplier + ");\n";
-		    }
+		if (document.getElementById("use-proximity-for-vib-3-ch"+ch).checked) {
+		    var multiplier = document.getElementById("proximity-speed-ch" + ch).value;
+		    sketch += "  t->useProximityAsSpeed(" + ch + ", true, " + multiplier + ");\n";
 		}
 	    }
 	}
     }
-
+    
 
     //--------------------------------------------------------------------------------
     // Advanced options
     //--------------------------------------------------------------------------------
 
-    sketch += "\n  // General (advanced) options (uncomment to change):\n";
+    var advancedOptions = "";
+
     // Proximity multiplier
     for (var i = 1; i <= 4; i++) {
 	var id = "proximity-multiplier-" + i;
 	var m = document.getElementById(id).value;
 	var fieldName = "Proximity multiplier " + i;
 	if (!checkNumber(m, 0, 100, fieldName)) { return; }
-	var commentIt = (parseFloat(m) == 1.0) ? "// " : "";
-	sketch += "  " + commentIt + "t->setProximityMultiplier(" + i + ", " + m + ");\n";
+	if (parseFloat(m) != 1.0) {
+	    advancedOptions += "  t->setProximityMultiplier(" + i + ", " + m + ");\n";
+	}
     }
 
     // Averaging strength
     var averaging = document.getElementById("averaging").value;
     if (!checkNumber(averaging, 1, 10000, "Averaging")) { return; }
-    var commentIt =  (parseInt(averaging) == 200) ? "// " : "";
-    sketch += "  " + commentIt + "t->setAveragingStrength(" + averaging + ");\n";
+    if (parseInt(averaging) != 200) {
+	advancedOptions += "  t->setAveragingStrength(" + averaging + ");\n";
+    }
+    
+    if (advancedOptions != "") {
+	sketch += "\n  // General (advanced) options:\n" + advancedOptions;
+    }
 
     // Close out the sketch
     sketch = sketch
