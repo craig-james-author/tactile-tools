@@ -65,7 +65,9 @@ function createArduinoSketch() {
 
     // Multi-track mode (applies to all channels)
     var multiTrack = document.getElementById("multi-track").checked;
-    sketch += "  t->setMultiTrackMode(" + multiTrack + ");\n";
+    if (multiTrack) {
+	sketch += "  t->setMultiTrackMode(true);\n";
+    }
 
     // Loop over channels, write options
     for (var ch = 1; ch <= 4; ch++) {
@@ -150,21 +152,31 @@ function createArduinoSketch() {
 		var fadeOut = document.getElementById("fade-out-ch"+ch).value;
 		if (   !checkNumber(fadeIn, 0, 100000, "Fade-in-ch"+ch)
 		    || !checkNumber(fadeOut, 0, 10000, "Fade-out-ch"+ch)) { return; }
-		sketch += "  t->setFadeInTime(" + ch + ", " + fadeIn + ");\n";
-		sketch += "  t->setFadeOutTime(" + ch + ", " + fadeOut + ");\n";
+		if (fadeIn != 0) {
+		    sketch += "  t->setFadeInTime(" + ch + ", true);\n";
+		}
+		if (fadeOut != 0) {
+		    sketch += "  t->setFadeOutTime(" + ch + ", " + fadeOut + ");\n";
+		}
 	    }
 
 	    // Continue-track mode
 	    var continueTrack = document.getElementById("continue-track-ch"+ch).checked;
-	    sketch += "  t->setContinueTrackMode(" + ch + ", " + continueTrack + ");\n";
+	    if (continueTrack) {
+		sketch += "  t->setContinueTrackMode(" + ch + ", true);\n";
+	    }
 
 	    // Random-track mode
 	    var randomTrack = document.getElementById("random-track-ch"+ch).checked;
-	    sketch += "  t->setPlayRandomTrackMode(" + ch + ", " + randomTrack + ");\n";
+	    if (randomTrack) {
+		sketch += "  t->setPlayRandomTrackMode(" + ch + ", true);\n";
+	    }
 
 	    // Track looping
 	    var trackLooping = document.getElementById("track-looping-ch"+ch).checked;
-	    sketch += "  t->setLoopMode(" + ch + ", " + trackLooping + ");\n";
+	    if (trackLooping) {
+		sketch += "  t->setLoopMode(" + ch + ", true);\n";
+	    }
 	}
 	
 	//--------------------------------------------------------------------------------
