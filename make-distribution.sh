@@ -54,7 +54,7 @@ cp $files $newdir/gemma-m0
 
 # tactile-builder
 cd $TEENSY/tools
-./compile-single-page-builder.sh $version $newdir/tactile-configurator.html
+./compile-single-page-builder.sh $version $newdir/tactileaudio-configurator.html
 
 # vibration designer
 ./compile-single-page-vib-designer.sh 2 $newdir/vibration-designer.html
