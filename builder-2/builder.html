@@ -135,56 +135,6 @@
 	  <div class="container" id="sensor-options-row-ch3">Sensor Options Channel 3 go here</div>
 	  <div class="container" id="sensor-options-row-ch4">Sensor Options Channel 4 go here</div>
 
-	  <!-- Multi-Track and Inactivity Timeout apply to all channels -->
-	  <div class="container" id="audio-options-row-all">
-
-	    <div class="row border-bottom border-top bg-light">
-	      <div class="col-3 border-end">
-		<h3>Global Options</h3>
-	      </div>
-	      <div class="col-9" style="padding-top: 0.5em;">
-		<i>These options apply to all channels, audio and vibrations.</i>
-	      </div>
-	    </div>
-
-	    <div class="row border-bottom">
-	      <div class="col-4 border-end">
-		<div class="input-group">
-		  <div class="input-group-prepend" style="width: 80%;">
-		    <label class="input-group-text" for="inactivity-timeout">
-		      Inactivity timeout (seconds):
-		    </label>
-		  </div>
-		  <input type="text" class="form-control" id="inactivity-timeout" value="60">
-		</div>
-	      </div>
-	      <div class="col-8">
-		If you enable continue-track mode (above), then the inactivity timeout
-		specifies an idle time; if that time passes with no activity (no
-		sensors touched), then all tracks are reset and will start playing
-		from the beginning the next time a sensor is touched (rather than
-		resuming where it left off). Time is in seconds. A value of zero means
-		no timeout.
-	      </div>
-	    </div>
-
-	    <div class="row border-bottom">
-	      <div class="col-4 border-end" style="padding-left: 3em;">
-		<div class="form-check form-switch" style="padding-top: 1em;">
-		  <input class="form-check-input" type="checkbox" id="multi-track" unchecked>
-		  <label class="form-check-label" for="multi-track">Enable multi-track mode</label>
-		</div>
-	      </div>
-	      <div class="col-8">
-		Enables multiple simultaneous tracks; that is, if you touch two or more sensors,
-		the associated audio files and/or vibrations will play simultaneously. If disabled,
-		only one channel plays at a time.
-	      </div>
-	    </div>
-
-	  </div>
-
-
 	  <!-- -------------------- AUDIO OUTPUT OPTIONS -------------------- -->
 
 	  <div class="container text-left" style="margin-top: 1em;">
@@ -418,7 +368,7 @@
 		<div class="row border-bottom">
 		  <div class="col-1"></div>
 		  <div class="col-3 border-end">
-		    <div class="fw-bold fs-5">Select vibration shape:</div>
+		    <div class="fw-bold fs-5">Select vibration envelope:</div>
 		    <select class="form-select" id="vibration-waveform-ch1" onChange="selectVibWaveform(1)">
 		      <option value="">Select...</option>
 		      <option value="continuous">Continuous vibration</option>
@@ -554,7 +504,56 @@
 
       </div> <!-- this is the end of the scrolling "non-sticky" row that encompasses the whole form -->
     </div> <!-- end of container that holds sticky and scrolling sections -->
-    
+
+
+    <!-- ---------- Multi-Track and Inactivity Timeout apply to all channels ---------- -->
+    <div class="container" id="audio-options-row-all">
+
+      <div class="row border-bottom border-top bg-light">
+	<div class="col-3 border-end">
+	  <h3>Global Options</h3>
+	</div>
+	<div class="col-9" style="padding-top: 0.5em;">
+	  <i>These options apply to all channels, audio and vibrations.</i>
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end">
+	  <div class="input-group">
+	    <div class="input-group-prepend" style="width: 80%;">
+	      <label class="input-group-text" for="inactivity-timeout">
+		Inactivity timeout (seconds):
+	      </label>
+	    </div>
+	    <input type="text" class="form-control" id="inactivity-timeout" value="60">
+	  </div>
+	</div>
+	<div class="col-8">
+	  If you enable continue-track mode (above), then the inactivity timeout
+	  specifies an idle time; if that time passes with no activity (no
+	  sensors touched), then all tracks are reset and will start playing
+	  from the beginning the next time a sensor is touched (rather than
+	  resuming where it left off). Time is in seconds. A value of zero means
+	  no timeout.
+	</div>
+      </div>
+
+      <div class="row border-bottom">
+	<div class="col-4 border-end" style="padding-left: 3em;">
+	  <div class="form-check form-switch" style="padding-top: 1em;">
+	    <input class="form-check-input" type="checkbox" id="multi-track" unchecked>
+	    <label class="form-check-label" for="multi-track">Enable multi-track mode</label>
+	  </div>
+	</div>
+	<div class="col-8">
+	  Enables multiple simultaneous tracks; that is, if you touch two or more sensors,
+	  the associated audio files and/or vibrations will play simultaneously. If disabled,
+	  only one channel plays at a time.
+	</div>
+      </div>
+
+    </div>
 
     <!-- -------------------- ADVANCED OPTIONS -------------------- -->
     

@@ -91,7 +91,7 @@ function createArduinoSketch() {
 	var e = document.getElementById("touch-or-proximity-menu-ch"+ch);
 	var prox = e.options[e.selectedIndex].value;
 	if (prox == "proximity") {
-	    sketch = sketch + "  t->useProximityAsVolumeMode("+ch+", true);\n";
+	    sketch = sketch + "  t->useProximityAsVolume("+ch+", true);\n";
 	}
 
 	// Touch/release thresholds
@@ -131,6 +131,9 @@ function createArduinoSketch() {
 	}
 	if (useVibrationOutput) {
 	    outputOption.push("vibrationOutput");
+	}
+	if (!useAudioOutput || !useVibrationOutput) {
+	    sketch += "  t->setOutputDestination("+ch+", " + outputOption.join(", ") + ");\n";
 	}
 	
 	//----------------------------------------------------------------------
